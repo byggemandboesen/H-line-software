@@ -57,7 +57,7 @@ def receive(frequency, sample_rate, ppm, resolution, num_FFT):
     plt.xlabel('Frequency / MHz')
     plt.ylabel('Relative power / dB')
 
-    path = f'D:/Documents/Programming/H-line-software/fft-{sample_resolution}-{num_FFT}.png'
+    path = f'D:/Documents/Programming/H-line-software/Spectrums/fft-{sample_resolution}-{num_FFT}.png'
     plt.savefig(path, dpi = 300)
 
     # Show image
