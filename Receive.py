@@ -51,19 +51,36 @@ def receive(frequency, sample_rate, ppm, resolution, num_FFT):
 
     # Get observed frequency range and plots PSD points
     print('Plotting PSD-points...')
-    PSD_freqs = np.linspace(start = sdr.center_freq - sdr.sample_rate/2, stop = sdr.center_freq + sdr.sample_rate/2, num = sample_resolution)
-    plt.plot(PSD_freqs, averaged_PSD)
+    PSD_freqs = tuple(np.linspace(start = sdr.center_freq - sdr.sample_rate/2, stop = sdr.center_freq + sdr.sample_rate/2, num = sample_resolution))
+    plt.plot(PSD_freqs, averaged_PSD, color = 'g', label = 'Observed data')
+    plt.axvline(x = 1420405000, color = 'r', linestyle = ':', label = 'Theoretical frequency')
     plt.grid()
-    plt.xlabel('Frequency / MHz')
+    plt.legend(prop = {'size': 8})
+    plt.xlabel('Frequency / Hz')
     plt.ylabel('Relative power / dB')
 
+    '''
+    freq_path = 'D:/Documents/Programming/H-line-software/FREQS.txt'
+    PSD_path = 'D:/Documents/Programming/H-line-software/PSD.txt'
+
+    file_psd = open(PSD_path, 'w')
+    file_psd.writelines(str(averaged_PSD))
+    file_psd.close()
+
+    file_freqs = open(freq_path, 'w')
+    file_freqs.writelines(str(PSD_freqs))
+    file_freqs.close()
+    '''
+    
     path = f'D:/Documents/Programming/H-line-software/Spectrums/fft-{sample_resolution}-{num_FFT}.png'
     plt.savefig(path, dpi = 300)
 
     # Show image
-    # os.system(path)
+    os.system(path)
 
     # Close the SDR
     sdr.close()
+
+
 
 
