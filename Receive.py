@@ -49,10 +49,12 @@ class Receiver:
         stop_freq = self.sdr.center_freq + self.sdr.sample_rate/2
         freqs = np.linspace(start = start_freq, stop = stop_freq, num = self.resolution)
 
-        # Corrects the spectrum. The center frequency will be moved by 3MHz
-        self.sdr.center_freq = self.sdr.center_freq + 3000000
-        reference = self.sample()
-        averaged_PSD = np.array(reference)/np.array(averaged_PSD)
+
+        # Corrects the spectrum if the hydrogen line is within the observed frequency range.
+        if start_freq < 1420405000 and stop_freq > 1420405000:
+            self.sdr.center_freq = self.sdr.center_freq + 3000000
+            reference = self.sample()
+            averaged_PSD = np.array(reference)/np.array(averaged_PSD)
 
         # Close the SDR
         self.sdr.close()
