@@ -1,6 +1,6 @@
 # H-line-software
 This software is created with the main purpose of receiving the hydrogen line at a frequency of approximately 1420.4MHz. <br>
-The software uses the (pyrtlsdr library)[https://github.com/roger-/pyrtlsdr] to collect samples from the RTL-SDR V3.0 dongle and numpy to perform FFT and signal processing. Finally, the data is shown in a chart from the pyplot library in matplotlib.
+The software uses the [pyrtlsdr library](https://github.com/roger-/pyrtlsdr) to collect samples from the RTL-SDR V3.0 dongle and numpy to perform FFT and signal processing. Finally, the data is shown in a chart from the pyplot library in matplotlib.
 
 ## Installing
 As usual, the code should be downloaded with git clone.
