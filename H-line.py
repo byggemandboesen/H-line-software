@@ -1,7 +1,7 @@
-import numpy as np
-import Receive
 import argparse
 
+from Receive import Receiver
+from Plot import Plot
 
 # Reads user parameters and continues to read samples with chosen configurations
 def main():
@@ -23,10 +23,16 @@ def main():
     
     args = parser.parse_args()
 
-    # Receive and write data
-    Receive.receive(frequency = args.frequency, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT)
 
-    #TODO Plot data
+    # Receives and writes data
+    Receiver_class = Receiver(frequency = args.frequency, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT)
+    freqs, averaged_PSD = Receiver_class.receive()
+
+    # Plots data
+    print('Plotting data...')
+    Plot_class = Plot()
+    Plot_class.plot(freqs = freqs, PSD_data = averaged_PSD)
+
     
 
 
