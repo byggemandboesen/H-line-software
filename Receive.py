@@ -20,8 +20,6 @@ import Plot
 250000Hz
 '''
 
-# TODO Add console read-outs
-
 # Receiver claqss. This needs receiving parameters and will write data which can later be processed in "Plot.py"
 class Receiver:
     
@@ -65,13 +63,13 @@ class Receiver:
     def sample(self):
         counter = 0.0
         PSD_summed = (0, )* self.resolution
-        while (counter <= self.num_FFT):
+        while (counter < self.num_FFT):
             samples = self.sdr.read_samples(self.resolution)
             
             # Perform FFT and PSD-analysis
             PSD = np.abs(np.fft.fft(samples)/self.sdr.sample_rate)**2
             PSD_log = 10*np.log10(PSD)
-            PSD_summed = map(operator.add, PSD_summed, np.fft.fftshift(PSD_log))
+            PSD_summed = tuple(map(operator.add, PSD_summed, np.fft.fftshift(PSD_log)))
             
             counter += 1.0
         
