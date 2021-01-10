@@ -18,8 +18,10 @@ def main():
     parser.add_argument('-n', metavar = 'Number of FFT\'s', type = int, help = 'Number of FFT\'s to be collected and averaged', default = 1000, dest = 'num_FFT')
 
     # Parsing options (observer)
-    parser.add_argument('-z', metavar = 'Azimuth', type = float, help = 'The azimuth of the antenna as a float, north is positive', default = 0.0, dest = 'azimuth')
-    parser.add_argument('-e', metavar = 'Elevation', type = float, help = 'The elevation of the antenna as a float, east is positive', default = 0.0, dest = 'elevation')
+    parser.add_argument('-l', metavar = 'Latitude', type = float, help = 'The latitude of the antenna\'s position as a float, north is positive', default = 0.0, dest = 'latitude')
+    parser.add_argument('-g', metavar = 'Longitude', type = float, help = 'The latitude of the antenna\'s position as a float, east is positive', default = 0.0, dest = 'longitude')
+    parser.add_argument('-z', metavar = 'Azimuth', type = float, help = 'The azimuth of the poting direction', default = 0.0, dest = 'azimuth')
+    parser.add_argument('-e', metavar = 'Elevation', type = float, help = 'The elevation of the pointing direction', default = 0.0, dest = 'elevation')
     
     args = parser.parse_args()
 
@@ -32,8 +34,6 @@ def main():
     print('Plotting data...')
     Plot_class = Plot()
     Plot_class.plot(freqs = freqs, PSD_data = averaged_PSD)
-
-    
 
 
 if __name__ == "__main__":
