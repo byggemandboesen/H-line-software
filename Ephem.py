@@ -8,6 +8,7 @@ class Coordinates:
         self.QTH = ephem.Observer()
         self.QTH.lat = str(lat)
         self.QTH.lon = str(lon)
+        self.QTH.pressure = 0
         self.alt = alt
         self.az = az
     
@@ -18,6 +19,11 @@ class Coordinates:
         gal_lat, gal_lon = ephem.Galactic(eq_grid).lat / degree, ephem.Galactic(eq_grid).lon / degree
 
         return gal_lat, gal_lon
+    
+    # Returns equatorial coordinates
+    def equatorial(self):
+        ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
+        return ra / degree, dec / degree
 
 
 coord_calc = Coordinates(lat = 55.6, lon = 12.5, alt = 55.6, az = 1)
@@ -33,6 +39,5 @@ QTH.pressure = 0
 
 ra, dec = QTH.radec_of(str(1), str(55.6))
 eq_grid = ephem.Equatorial(ra, dec)
-gal_lat, gal_lon = ephem.Galactic(eq_grid).lat / degree, ephem.Galactic(eq_grid).lon / degree
 
 
