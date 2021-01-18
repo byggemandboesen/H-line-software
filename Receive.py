@@ -24,6 +24,7 @@ import Plot
 class Receiver:
     
     def __init__(self, frequency, sample_rate, ppm, resolution, num_FFT):
+
         self.sdr = RtlSdr()
 
         # configure SDR
@@ -36,11 +37,12 @@ class Receiver:
 
         self.resolution = 2**resolution
         self.num_FFT = num_FFT
+
     
     # Reads data from SDR, processes and writes it
     def receive(self):
         print(f'Receiving {self.num_FFT} samples...')
-        averaged_PSD = self.sample()
+        data_PSD = self.sample()
 
         # Observed frequency range
         start_freq = self.sdr.center_freq - self.sdr.sample_rate/2
@@ -48,15 +50,16 @@ class Receiver:
         freqs = np.linspace(start = start_freq, stop = stop_freq, num = self.resolution)
 
 
-        # Corrects the spectrum if the hydrogen line is within the observed frequency range.
+        # Samples a blank spectrum if the hydrogen line is within the observed frequency range.
+        # This will be used for calculating the SNR
         if start_freq < 1420405000 and stop_freq > 1420405000:
             self.sdr.center_freq = self.sdr.center_freq + 3000000
-            reference = self.sample()
-            averaged_PSD = np.array(reference)/np.array(averaged_PSD)
+            blank_PSD = self.sample()
 
         # Close the SDR
         self.sdr.close()
-        return freqs, averaged_PSD
+        SNR = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
+        return freqs, SNR
 
 
     # Returns numpy array with PSD values averaged from "num_FFT" datasets
@@ -75,6 +78,17 @@ class Receiver:
         
         averaged_PSD = tuple(sample/counter for sample in PSD_summed)
         return averaged_PSD
+
+
+    # Calculates SNR from spectrum
+    def estimate_SNR(self, data, blank):
+
+        SNR = np.array(data)-np.array(blank)
+        noise_floor = np.nanmean(SNR[0])
+        shifted_SNR = SNR-noise_floor
+
+        return shifted_SNR
+
         
 
 

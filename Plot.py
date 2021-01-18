@@ -7,12 +7,12 @@ class Plot:
     def __init__(self):
         self.H_FREQUENCY = 1420405000
 
-    def plot(self, freqs, PSD_data):
+    def plot(self, freqs, data):
         start_freq = freqs[0]
         stop_freq = freqs[-1]
 
 
-        plt.plot(freqs, PSD_data, color = 'g', label = 'Observed data')
+        plt.plot(freqs, data, color = 'g', label = 'Observed data')
 
         if start_freq < self.H_FREQUENCY and stop_freq > self.H_FREQUENCY:
             plt.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', label = 'Theoretical frequency')
@@ -21,7 +21,7 @@ class Plot:
         plt.legend(prop = {'size': 8})
         plt.xlabel('Frequency / Hz')
         plt.xlim([start_freq, stop_freq])
-        plt.ylabel('Relative power / dB')
+        plt.ylabel('Signal to noise ratio (SNR) / dB')
 
         '''
         freq_path = './FREQS.txt'
@@ -36,4 +36,4 @@ class Plot:
         plt.savefig(path, dpi = 300)
 
         # Show image
-        os.system('C:/Users/victo/Documents/programming-projects/Python/H-line-software/Spectrums/fft.png')
+        # os.system('C:/Users/victo/Documents/programming-projects/Python/H-line-software/Spectrums/fft.png')
