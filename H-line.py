@@ -1,10 +1,14 @@
 import argparse
+import json
+import numpy as np
 
 from Receive import Receiver
 from Plot import Plot
+from Ephem import Coordinates
 
-# Reads user parameters and continues to read samples with chosen configurations
-def main():
+
+# Reads user parameters
+def parser():
     parser = argparse.ArgumentParser(
         prog = 'H-line-observer',
         description = 'An interface to receive H-line data'
@@ -27,16 +31,47 @@ def main():
     
     args = parser.parse_args()
 
+    main(args)
+
+
+# Main method
+def main(args):
+
+    # Get current observer location and antenna pointing direction
+    if args.use_config:
+        config = read_config()
+        lat, lon = config['latitude'], config['longitude']
+        alt, az = config['altitude'], config['azimuth']
+        if "none" in (lat, lon, alt, az):
+            print('Please check your config file or use command line arguments.')
+            quit()
+    else:
+        lat, lon = args.latitude, args.longitude
+        alt, az = args.altitude, args.azimuth
+    
+
+    # Get current equatorial and galactic coordinates of antenna RA and Declination
+    Coordinates_class = Coordinates(lat = lat, lon = lon, alt = alt, az = az)
+    ra, dec = Coordinates_class.equatorial()
+    gal_lat, gal_lon = Coordinates_class.galactic()
 
     # Receives and writes data
     Receiver_class = Receiver(frequency = args.frequency, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT)
-    freqs, averaged_PSD = Receiver_class.receive()
+    freqs, data = Receiver_class.receive()
 
     # Plots data
     print('Plotting data...')
     Plot_class = Plot()
-    Plot_class.plot(freqs = freqs, PSD_data = averaged_PSD)
+    Plot_class.plot(freqs = freqs, data = data)
+
+
+# Reads the config file and returns JSON graph
+def read_config():
+    path = './config.txt'
+    config = open(path, 'r')
+    json_config = json.load(config)
+    return json_config
 
 
 if __name__ == "__main__":
-    main()
+    parser()
