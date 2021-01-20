@@ -14,14 +14,18 @@ class Plot:
 
         plt.plot(freqs, data, color = 'g', label = 'Observed data')
 
+        # Checks if H-line is included in frequency range
         if start_freq < self.H_FREQUENCY and stop_freq > self.H_FREQUENCY:
             plt.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', label = 'Theoretical frequency')
+            ylabel ='Signal to noise ratio (SNR) / dB'
+        else:
+            ylabel = 'Relative power / dB'
 
         plt.grid()
         plt.legend(prop = {'size': 8})
         plt.xlabel('Frequency / Hz')
-        plt.xlim([start_freq, stop_freq])
-        plt.ylabel('Signal to noise ratio (SNR) / dB')
+        plt.xlim([start_freq, stop_freq])            
+        plt.ylabel(ylabel)
 
         '''
         freq_path = './FREQS.txt'
@@ -36,4 +40,4 @@ class Plot:
         plt.savefig(path, dpi = 300)
 
         # Show image
-        # os.system('C:/Users/victo/Documents/programming-projects/Python/H-line-software/Spectrums/fft.png')
+        # os.system('./Spectrums/fft.png')

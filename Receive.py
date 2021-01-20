@@ -3,8 +3,6 @@ import numpy as np
 from rtlsdr import RtlSdr
 import matplotlib.pyplot as plt
 
-import Plot
-
 # Available sample rates
 '''
 3200000Hz
@@ -20,7 +18,7 @@ import Plot
 250000Hz
 '''
 
-# Receiver claqss. This needs receiving parameters and will write data which can later be processed in "Plot.py"
+# Receiver class. This needs receiving parameters and will receive data from the SDR
 class Receiver:
     
     def __init__(self, frequency, sample_rate, ppm, resolution, num_FFT):
@@ -55,11 +53,13 @@ class Receiver:
         if start_freq < 1420405000 and stop_freq > 1420405000:
             self.sdr.center_freq = self.sdr.center_freq + 3000000
             blank_PSD = self.sample()
+            SNR = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
+            return freqs, SNR
+        else:
+            return freqs, data_PSD
 
         # Close the SDR
         self.sdr.close()
-        SNR = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
-        return freqs, SNR
 
 
     # Returns numpy array with PSD values averaged from "num_FFT" datasets
@@ -82,9 +82,8 @@ class Receiver:
 
     # Calculates SNR from spectrum
     def estimate_SNR(self, data, blank):
-
         SNR = np.array(data)-np.array(blank)
-        noise_floor = np.nanmean(SNR[0])
+        noise_floor = np.mean(SNR)
         shifted_SNR = SNR-noise_floor
 
         return shifted_SNR
