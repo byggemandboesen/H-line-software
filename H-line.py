@@ -57,12 +57,13 @@ def main(args):
 
     # Receives and writes data
     Receiver_class = Receiver(frequency = args.frequency, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT)
-    freqs, data = Receiver_class.receive()
+    freqs, data, SNR = Receiver_class.receive()
 
     # Plots data
     print('Plotting data...')
+    name = f'ra={ra},dec={dec},SNR={SNR}'
     Plot_class = Plot()
-    Plot_class.plot(freqs = freqs, data = data)
+    Plot_class.plot(freqs = freqs, data = data, name = name)
 
 
 # Reads the config file and returns JSON graph

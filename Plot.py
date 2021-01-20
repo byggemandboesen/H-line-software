@@ -7,7 +7,7 @@ class Plot:
     def __init__(self):
         self.H_FREQUENCY = 1420405000
 
-    def plot(self, freqs, data):
+    def plot(self, freqs, data, name):
         start_freq = freqs[0]
         stop_freq = freqs[-1]
 
@@ -36,7 +36,7 @@ class Plot:
         file_psd.close()
         '''
         
-        path = './Spectrums/fft.png'
+        path = f'./Spectrums/{name}.png'
         plt.savefig(path, dpi = 300)
 
         # Show image

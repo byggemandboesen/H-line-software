@@ -18,12 +18,12 @@ class Coordinates:
         eq_grid = ephem.Equatorial(ra, dec)
         gal_lat, gal_lon = ephem.Galactic(eq_grid).lat / degree, ephem.Galactic(eq_grid).lon / degree
 
-        return gal_lat, gal_lon
+        return round(gal_lat, 0), round(gal_lon, 0)
     
     # Returns equatorial coordinates
     def equatorial(self):
         ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
-        return ra / degree, dec / degree
+        return round(ra / degree, 0), round(dec / degree, 0)
 
 '''
 coord_calc = Coordinates(lat = 55.6, lon = 12.5, alt = 55.6, az = 1)

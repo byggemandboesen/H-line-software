@@ -53,8 +53,8 @@ class Receiver:
         if start_freq < 1420405000 and stop_freq > 1420405000:
             self.sdr.center_freq = self.sdr.center_freq + 3000000
             blank_PSD = self.sample()
-            SNR = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
-            return freqs, SNR
+            SNR_spectrum, SNR = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
+            return freqs, SNR_spectrum, SNR
         else:
             return freqs, data_PSD
 
@@ -80,13 +80,14 @@ class Receiver:
         return averaged_PSD
 
 
-    # Calculates SNR from spectrum
+    # Calculates SNR from spectrum and H-line SNR
     def estimate_SNR(self, data, blank):
         SNR = np.array(data)-np.array(blank)
         noise_floor = np.mean(SNR)
         shifted_SNR = SNR-noise_floor
+        H_SNR = max(shifted_SNR)
 
-        return shifted_SNR
+        return shifted_SNR, round(H_SNR, 5)
 
         
 
