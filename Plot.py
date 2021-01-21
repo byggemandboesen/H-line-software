@@ -18,6 +18,7 @@ class Plot:
         if start_freq < self.H_FREQUENCY and stop_freq > self.H_FREQUENCY:
             plt.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', label = 'Theoretical frequency')
             ylabel ='Signal to noise ratio (SNR) / dB'
+            plt.title(name)
         else:
             ylabel = 'Relative power / dB'
 
