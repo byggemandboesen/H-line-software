@@ -83,7 +83,7 @@ class Receiver:
     # Calculates SNR from spectrum and H-line SNR
     def estimate_SNR(self, data, blank):
         SNR = np.array(data)-np.array(blank)
-        noise_floor = np.mean(SNR[0])
+        noise_floor = SNR[0]
         shifted_SNR = SNR-noise_floor
         H_SNR = max(shifted_SNR)
 

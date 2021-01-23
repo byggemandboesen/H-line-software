@@ -14,7 +14,7 @@ pip install numpy
 pip install pyrtlsdr
 pip install pyephem
 ~~~
-One should also install [rtl-sdr drivers for windows](https://osmocom.org/attachments/2242/RelWithDebInfo.zip). Then the "x64" folder has to be added to PATH under system variables. This will require a system restart.
+One should also install [rtl-sdr drivers for windows](https://osmocom.org/attachments/2242/RelWithDebInfo.zip) and add the add the files from the [rtl-sdr drivers](https://ftp.osmocom.org/binaries/windows/rtl-sdr/) into the X64 folder (overwrite the files that already exist). Then the "x64" folder has to be added to PATH under system variables. This will require a shell restart.
 
 ## Usage
 The software is meant for observing the hydrogen line but it also allows to plot any other frequency inside the RTL-SDR tuner ranger. This means the software has set default preferences for the hydrogen line, but these can be modified according with argparser according to your preferences. <br>
