@@ -22,11 +22,11 @@ The following parameters can be modified/added:
 ~~~
 optional arguments:
   -h, --help          show this help message and exit
-  -f Frequency        Center tuning frequency in Hz
   -s Sample rate      Tuner sample rate
   -o PPM offset       Set custom tuner offset PPM
   -r Resolution       Amount of samples = 2 raised to the power of the input
   -n Number of FFT's  Number of FFT's to be collected and averaged
+  -i Degree interval  Degree interval of each data-collection. Collects data for 24h.
   -l Latitude         The latitude of the antenna's position as a float, north is positive
   -g Longitude        The latitude of the antenna's position as a float, east is positive
   -z Azimuth          The azimuth of the poting direction
@@ -48,3 +48,4 @@ Defult settings exept, Resolution = 9, Number of FFT's = 100000 <br>
 ## TODO
 * Direct bias-t interaction
 * Calculate relative doppler
+* More accurate data collection timing from sample rate
