@@ -76,8 +76,8 @@ def main(args):
             # Plots data
             print('Plotting data...')
             name = f'ra={ra},dec={dec},SNR={SNR}'
-            Plot_class = Plot()
-            Plot_class.plot(freqs = freqs, data = data, name = name)
+            Plot_class = Plot(freqs = freqs, data = data)
+            Plot_class.plot(name = name)
             
             if num_data != 1:
                 time_remaining = end_time - datetime.utcnow()
