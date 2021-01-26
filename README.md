@@ -47,5 +47,6 @@ Defult settings exept, Resolution = 9, Number of FFT's = 100000 <br>
 
 ## TODO
 * Direct bias-t interaction
-* Calculate relative doppler
+* ~~Calculate relative doppler~~
 * More accurate data collection timing from sample rate
+* Correct doppler from observed galactic coordinates
