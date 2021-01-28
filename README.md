@@ -7,7 +7,7 @@ As usual, the code should be downloaded with git clone.
 ~~~
 git clone https://github.com/byggemandboesen/H-line-software.git
 ~~~
-Some packages are required which can be downloaded with pip (requirements.txt will be added):
+Some packages are required which can be downloaded with pip:
 ~~~
 pip install matplotlib
 pip install numpy
@@ -42,7 +42,8 @@ Note the double line in the first image.
 ![Hydrogen line in Cassiopeia](Spectrums/ra=13.0,dec=61.0,SNR=0.8309.png)
 The following image is a clear representation of doppler shift from the head of Orion around the star Meissa.
 ![Doppler shift around Meissa](Spectrums/ra=83.0,dec=9.0,SNR=0.79673.png)
-Both images were received with defult settings exept, Resolution = 9, Number of FFT's = 100000 <br>
+Both images were received with defult settings except, Resolution = 9, Number of FFT's = 100000 <br>
+Console command used:
 ~~~
 py h-line.py -n 100000 -r 9
 ~~~
