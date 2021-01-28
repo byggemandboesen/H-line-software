@@ -68,7 +68,8 @@ class Receiver:
             
             # Perform FFT and PSD-analysis
             PSD = np.abs(np.fft.fft(samples)/self.sdr.sample_rate)**2
-            PSD_log = 10*np.log10(PSD) # TODO Fix divide by zero error, "RuntimeWarning: divide by zero encountered in log10"
+            PSD_checked = self.check_for_zero(PSD)
+            PSD_log = 10*np.log10(PSD_checked)
             PSD_summed = tuple(map(operator.add, PSD_summed, np.fft.fftshift(PSD_log)))
             
             counter += 1.0
@@ -87,7 +88,15 @@ class Receiver:
 
         return shifted_SNR, round(H_SNR, 5)
 
-        
 
+    # Checks if samples have been dropped and replaces 0.0 with next value
+    def check_for_zero(self, PSD):
+        try:
+            index = list(PSD).index(0.0)
+            print('Dropped sample was recovered!')
+            PSD[index] = (PSD[index+1]+PSD[index-1])/2
+            return PSD
+        except:
+            return PSD
 
 
