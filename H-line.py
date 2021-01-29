@@ -1,3 +1,4 @@
+import os
 import time
 import argparse
 import json
@@ -52,15 +53,15 @@ def main(args):
         alt, az = args.altitude, args.azimuth
     
     # Checks if 360 is divisable with the degree interval and calculates number of collections
-    num_data = 360/args.interval if args.interval != 0 else 1
-    second_interval = 24*60**2/num_data if num_data > 1 else None
+    num_data = 360/args.interval if args.interval != 0 else 0
+    second_interval = 24*60**2/num_data if num_data > 0 else None
 
 
     if float(num_data).is_integer():
         for i in range(int(num_data)+1):
 
             current_time = datetime.utcnow()
-            if num_data != 1:
+            if num_data != 0:
                 end_time = current_time + timedelta(seconds = second_interval)
 
             # Get current equatorial and galactic coordinates of antenna RA and Declination
@@ -78,7 +79,7 @@ def main(args):
             Plot_class = Plot(freqs = freqs, data = data)
             Plot_class.plot(name = name)
             
-            if num_data != 1:
+            if num_data != 0:
                 time_remaining = end_time - datetime.utcnow()
                 print(f'Waiting for next data collection in {time_remaining.total_seconds()} seconds')
                 time.sleep(time_remaining.total_seconds())
