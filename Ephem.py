@@ -25,19 +25,3 @@ class Coordinates:
         ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
         return round(ra / degree, 1), round(dec / degree, 1)
 
-'''
-coord_calc = Coordinates(lat = 55.6, lon = 12.5, alt = 55.6, az = 1)
-lat, lon = coord_calc.galactic()
-print(lat, lon)
-
-
-
-QTH = ephem.Observer()
-QTH.lat = '55.6'
-QTH.lon = '12.5'
-QTH.pressure = 0
-
-ra, dec = QTH.radec_of(str(1), str(55.6))
-eq_grid = ephem.Equatorial(ra, dec)
-'''
-

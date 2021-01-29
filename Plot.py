@@ -14,7 +14,7 @@ class Plot:
         start_freq = self.freqs[0]
         stop_freq = self.freqs[-1]
 
-        fig, ax = plt.subplots(figsize=(16,9))
+        fig, ax = plt.subplots(figsize=(12,7))
         ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
 
         # Plots theoretical H-line frequency
