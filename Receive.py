@@ -68,8 +68,12 @@ class Receiver:
             
             # Perform FFT and PSD-analysis
             PSD = np.abs(np.fft.fft(samples)/self.sdr.sample_rate)**2
-            PSD_checked = self.check_for_zero(PSD)
-            PSD_log = 10*np.log10(PSD_checked)
+            try:
+                PSD_log = 10*np.log10(PSD)
+            except ValueError:
+                PSD_checked = self.check_for_zero(PSD)
+                PSD_log = 10*np.log10(PSD_checked)
+            
             PSD_summed = tuple(map(operator.add, PSD_summed, np.fft.fftshift(PSD_log)))
             
             counter += 1.0
