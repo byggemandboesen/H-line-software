@@ -47,33 +47,29 @@ class Receiver:
         stop_freq = self.sdr.center_freq + self.sdr.sample_rate/2
         freqs = np.linspace(start = start_freq, stop = stop_freq, num = self.resolution)
 
-
         # Samples a blank spectrum to callibrate spectrum with.
         self.sdr.center_freq = self.sdr.center_freq + 3000000
         blank_PSD = self.sample()
-        SNR_spectrum, SNR = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
+        SNR_spectrum = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
 
         # Close the SDR
         self.sdr.close()
 
-        return freqs, SNR_spectrum, SNR
+        return freqs, SNR_spectrum
 
 
     # Returns numpy array with PSD values averaged from "num_FFT" datasets
     def sample(self):
         counter = 0.0
         PSD_summed = (0, )* self.resolution
+        
         while (counter < self.num_FFT):
             samples = self.sdr.read_samples(self.resolution)
             
             # Perform FFT and PSD-analysis
             PSD = np.abs(np.fft.fft(samples)/self.sdr.sample_rate)**2
-            try:
-                PSD_log = 10*np.log10(PSD)
-            except ValueError:
-                PSD_checked = self.check_for_zero(PSD)
-                PSD_log = 10*np.log10(PSD_checked)
-            
+            PSD_checked = self.check_for_zero(PSD) 
+            PSD_log = 10*np.log10(PSD_checked)
             PSD_summed = tuple(map(operator.add, PSD_summed, np.fft.fftshift(PSD_log)))
             
             counter += 1.0
@@ -90,7 +86,7 @@ class Receiver:
         shifted_SNR = SNR-noise_floor
         H_SNR = max(shifted_SNR)
 
-        return shifted_SNR, round(H_SNR, 5)
+        return shifted_SNR
 
 
     # Checks if samples have been dropped and replaces 0.0 with next value

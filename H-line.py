@@ -71,13 +71,12 @@ def main(args):
 
             # Receives and writes data
             Receiver_class = Receiver(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT)
-            freqs, data, SNR = Receiver_class.receive()
+            freqs, data = Receiver_class.receive()
 
             # Plots data
             print('Plotting data...')
-            name = f'ra={ra},dec={dec},SNR={SNR}'
             Plot_class = Plot(freqs = freqs, data = data)
-            Plot_class.plot(name = name)
+            Plot_class.plot(ra = ra, dec = dec)
             
             if num_data != 0:
                 time_remaining = end_time - datetime.utcnow()
