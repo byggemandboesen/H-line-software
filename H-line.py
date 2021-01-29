@@ -57,7 +57,7 @@ def main(args):
 
 
     if float(num_data).is_integer():
-        for i in range (int(num_data)):
+        for i in range(int(num_data)-1):
 
             current_time = datetime.utcnow()
             if num_data != 1:
