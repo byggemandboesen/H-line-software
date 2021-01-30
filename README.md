@@ -39,7 +39,7 @@ If one is located in noisy conditions a resolution at around 8-9 may result in a
 ## Examples
 The two following spectrums were received with an [RTL-SDR V3.0 dongle](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/), [Nooelec SAWbird+ H1](https://www.nooelec.com/store/sdr/sdr-addons/sawbird/sawbird-h1.html) and a [wifi grid dish](https://www.ebay.de/itm/2-4GHz-WLAN-W-LAN-WiFi-Grid-Richtantenne-Gitter-Antenne-Wetterfest-24dBi/223492035303?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649) with a flipped reflector element for better frequency matching. <br>
 The image is captured pointing at Cassiopeia and it shows three separate peaks with intensity decreasing from left to right.
-![Spectrum in Cassiopeia](Spectrums/ra=356.1, dec=59.5, SNR=0.766, doppler=-6.0.png)
+![Spectrum in Cassiopeia](Spectrums/ra=356.1,dec=59.5,SNR=0.766,doppler=-6.0.png)
 Default settings used except for number of FFT's, which was 50000. This was captured as a part of a sequence using the "-i" argument and "-c" for using coordinates from the config.txt file. <br>
 The console argument can be seen here:
 ~~~
