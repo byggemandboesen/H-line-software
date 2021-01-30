@@ -40,9 +40,13 @@ def parser():
 # Main method
 def main(args):
 
+    config = read_config()
+
+    # Get y-axis limits from config
+    low_y, high_y = config['low_y'], config['high_y']
+
     # Get current observer location and antenna pointing direction
     if args.use_config:
-        config = read_config()
         lat, lon = config['latitude'], config['longitude']
         alt, az = config['altitude'], config['azimuth']
         if "none" in (lat, lon, alt, az):
@@ -51,11 +55,10 @@ def main(args):
     else:
         lat, lon = args.latitude, args.longitude
         alt, az = args.altitude, args.azimuth
-    
+
     # Checks if 360 is divisable with the degree interval and calculates number of collections
     num_data = 360/args.interval if args.interval != 0 else 0
     second_interval = 24*60**2/num_data if num_data > 0 else None
-
 
     if float(num_data).is_integer():
         for i in range(int(num_data)+1):
@@ -76,7 +79,7 @@ def main(args):
             # Plots data
             print('Plotting data...')
             Plot_class = Plot(freqs = freqs, data = data)
-            Plot_class.plot(ra = ra, dec = dec)
+            Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
             
             if num_data != 0:
                 time_remaining = end_time - datetime.utcnow()

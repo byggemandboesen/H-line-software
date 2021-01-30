@@ -2,5 +2,7 @@
     "latitude": "none",
     "longitude": "none",
     "azimuth": "none",
-    "altitude": "none"
+    "altitude": "none",
+    "low_y": "none",
+    "high_y": "none"
 }

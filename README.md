@@ -35,6 +35,7 @@ optional arguments:
 ~~~
 The latitude, longitude, azimuth and altitude can also be modified in the "config.txt" and used by using the console argument "-c". This will then save you some time from writing latitude & longitude. Keep in mind the azimuth ranges from zero to positive 180 degrees and then goes straight to -180 to 0. This means an azimuth of 270 degrees will be -90 degrees. <br>
 If one is located in noisy conditions a resolution at around 8-9 may result in a cleaner spectrum and to increase detail a higher number of FFT's should be taken.
+To disable the autoscaling in the plots, you can set your own y-axis interval in the config.txt to for example, low_y = -1 & high_y = 1.
 
 ## Examples
 The two following spectrums were received with an [RTL-SDR V3.0 dongle](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/), [Nooelec SAWbird+ H1](https://www.nooelec.com/store/sdr/sdr-addons/sawbird/sawbird-h1.html) and a [wifi grid dish](https://www.ebay.de/itm/2-4GHz-WLAN-W-LAN-WiFi-Grid-Richtantenne-Gitter-Antenne-Wetterfest-24dBi/223492035303?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649) with a flipped reflector element for better frequency matching. <br>
@@ -52,3 +53,4 @@ Where 50000 FFT's are used, coordinates from config is used and the interval of 
 * ~~Calculate relative doppler~~
 * More accurate data collection timing from sample rate
 * Correct doppler from observed galactic coordinates
+* RFI removal

@@ -10,7 +10,7 @@ class Plot:
         self.freqs = freqs
         self.data = data
 
-    def plot(self, ra, dec):
+    def plot(self, ra, dec, low_y, high_y):
         start_freq = self.freqs[0]
         stop_freq = self.freqs[-1]
         SNR, doppler = self.SNR_and_doppler()
@@ -29,6 +29,10 @@ class Plot:
         ax.set(xlim = [start_freq, stop_freq])
         ax.legend(prop = {'size': 8})
         ax.grid()
+
+        # Adds y-axis interval if supplied in config.txt
+        if not "none" in (low_y, high_y):
+            ax.set(ylim = [low_y, high_y])
 
         # Adds top x-axis for doppler
         # TODO Correct doppler from galactical coordinates
