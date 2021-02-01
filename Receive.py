@@ -39,7 +39,7 @@ class Receiver:
     
     # Reads data from SDR, processes and writes it
     def receive(self):
-        print(f'Receiving {self.num_FFT} samples...')
+        print(f'Receiving {self.num_FFT} bins of {self.resolution} samples each...')
         data_PSD = self.sample()
 
         # Observed frequency range
@@ -67,8 +67,12 @@ class Receiver:
         while (counter < self.num_FFT):
             samples = self.sdr.read_samples(self.resolution)
             
+            # Applies window to samples in time domain before performing FFT
+            window = np.hanning(self.resolution)
+            windowed_samples = samples * window
+
             # Perform FFT and PSD-analysis
-            PSD = np.abs(np.fft.fft(samples)/self.sdr.sample_rate)**2
+            PSD = np.abs(np.fft.fft(windowed_samples)/self.sdr.sample_rate)**2
             PSD_checked = self.check_for_zero(PSD) 
             PSD_log = 10*np.log10(PSD_checked)
             PSD_summed = tuple(map(operator.add, PSD_summed, np.fft.fftshift(PSD_log)))
@@ -92,7 +96,7 @@ class Receiver:
     # Median filter for rfi-removal
     def median(self, data):
         for i in range(len(data)):
-            data[i] = np.mean(data[i:i+5])
+            data[i] = np.mean(data[i:i+10])
         return data
 
 
