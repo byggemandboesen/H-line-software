@@ -20,7 +20,7 @@ def parser():
     # Parsing options (receiver)
     parser.add_argument('-s', metavar = 'Sample rate', type = int, help = 'Tuner sample rate', default = 2400000, dest = 'sample_rate')
     parser.add_argument('-o', metavar = 'PPM offset', type = int, help = 'Set custom tuner offset PPM', default = 0, dest = 'ppm')
-    parser.add_argument('-r', metavar = 'Resolution', type = int, help = 'Amount of samples = 2 raised to the power of the input', default = 10, dest = 'resolution')
+    parser.add_argument('-r', metavar = 'Resolution', type = int, help = 'Amount of samples = 2 raised to the power of the input', default = 11, dest = 'resolution')
     parser.add_argument('-n', metavar = 'Number of FFT\'s', type = int, help = 'Number of FFT\'s to be collected and averaged', default = 1000, dest = 'num_FFT')
     parser.add_argument('-i', metavar = 'Degree interval', type = float, help = 'Degree interval of each data-collection. Collects data for 24h.', default = 0.0, dest = 'interval')
 
