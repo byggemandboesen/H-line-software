@@ -51,11 +51,12 @@ class Receiver:
         self.sdr.center_freq = self.sdr.center_freq + 3000000
         blank_PSD = self.sample()
         SNR_spectrum = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
+        SNR_median = self.median(SNR_spectrum)
 
         # Close the SDR
         self.sdr.close()
 
-        return freqs, SNR_spectrum
+        return freqs, SNR_median
 
 
     # Returns numpy array with PSD values averaged from "num_FFT" datasets
@@ -86,6 +87,13 @@ class Receiver:
         shifted_SNR = SNR-noise_floor
 
         return shifted_SNR
+
+
+    # Median filter for rfi-removal
+    def median(self, data):
+        for i in range(len(data)):
+            data[i] = np.mean(data[i:i+5])
+        return data
 
 
     # Checks if samples have been dropped and replaces 0.0 with next value
