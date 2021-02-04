@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 
 from datetime import datetime
@@ -47,9 +48,16 @@ class Plot:
 
     # Returns highest SNR and doppler of the highest peak    
     def SNR_and_doppler(self):
-        SNR = max(self.data)
-        SNR_index = list(self.data).index(SNR)
-        doppler = self.doppler_from_freq(self.freqs[SNR_index])
+        data = self.data
+        freqs = self.freqs
+
+        # Finds SNR in isolated area around the H-line to avoid calculating SNR from noise
+        min_index = (np.abs(freqs-self.freq_from_doppler(-100))).argmin()
+        max_index = (np.abs(freqs-self.freq_from_doppler(100))).argmin()
+        SNR = max(data[min_index:max_index])
+        SNR_index = list(data).index(SNR)
+
+        doppler = self.doppler_from_freq(freqs[SNR_index])
         return round(SNR, 3), round(doppler, 0)
 
 
