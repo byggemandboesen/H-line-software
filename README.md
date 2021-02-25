@@ -21,20 +21,21 @@ The software is meant for observing the hydrogen line which means the software h
 The following parameters can be modified/added:
 ~~~
 optional arguments:
-  -h, --help          show this help message and exit
-  -s Sample rate      Tuner sample rate
-  -o PPM offset       Set custom tuner offset PPM
-  -r Resolution       Amount of samples = 2 raised to the power of the input
-  -n Number of FFT's  Number of FFT's to be collected and averaged
-  -i Degree interval  Degree interval of each data-collection. Collects data for 24h.
-  -l Latitude         The latitude of the antenna's position as a float, north is positive
-  -g Longitude        The latitude of the antenna's position as a float, east is positive
-  -z Azimuth          The azimuth of the poting direction
-  -a Altitude         The elevation of the pointing direction
-  -c                  Use lat, lon of QTH and antenna alt/az from config file
+  -h, --help           show this help message and exit
+  -s Sample rate       Tuner sample rate
+  -o PPM offset        Set custom tuner offset PPM
+  -r Resolution        Amount of samples = 2 raised to the power of the input
+  -n Number of FFT's   Number of FFT's to be collected and averaged
+  -i Degree interval   Degree interval of each data-collection. Collects data for 24h.
+  -m Median smoothing  Number of data-points to compute median from. Smooths data and compresses noise
+  -l Latitude          The latitude of the antenna's position as a float, north is positive
+  -g Longitude         The latitude of the antenna's position as a float, east is positive
+  -z Azimuth           The azimuth of the poting direction
+  -a Altitude          The elevation of the pointing direction
+  -c                   Use lat, lon of QTH and antenna alt/az from config file
 ~~~
 The latitude, longitude, azimuth and altitude can also be modified in the "config.txt" and used by using the console argument "-c". This will then save you some time from writing latitude & longitude. Keep in mind the azimuth ranges from zero to positive 180 degrees and then goes straight to -180 to 0. This means an azimuth of 270 degrees will be -90 degrees. <br>
-If one is located in noisy conditions a resolution at around 8-9 may result in a cleaner spectrum and to increase detail a higher number of FFT's should be taken.
+If one is located in noisy conditions a resolution at around 8-9 may result in a cleaner spectrum and to increase detail a higher number of FFT's should be taken. Interference can also be dealt with by smoothing the data with a median filter using "-m X". This will compute the median for each point from X points besides it. An isolated interference spike will therefor be less powerful.
 To disable the autoscaling in the plots, you can set your own y-axis interval in the config.txt to for example, low_y = -1 & high_y = 1.
 
 ## Examples
@@ -53,4 +54,5 @@ Where 50000 FFT's are used, coordinates from config is used and the interval of 
 * ~~Calculate relative doppler~~
 * More accurate data collection timing from sample rate
 * Correct doppler from observed galactic coordinates
-* RFI removal
+* ~~RFI removal~~
+* Installation on Linux
