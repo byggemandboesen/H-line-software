@@ -23,6 +23,7 @@ def parser():
     parser.add_argument('-r', metavar = 'Resolution', type = int, help = 'Amount of samples = 2 raised to the power of the input', default = 11, dest = 'resolution')
     parser.add_argument('-n', metavar = 'Number of FFT\'s', type = int, help = 'Number of FFT\'s to be collected and averaged', default = 1000, dest = 'num_FFT')
     parser.add_argument('-i', metavar = 'Degree interval', type = float, help = 'Degree interval of each data-collection. Collects data for 24h.', default = 0.0, dest = 'interval')
+    parser.add_argument('-m', metavar = 'Median smoothing', type = int, help = 'Number of data-points to compute median from. Smooths data and compresses noise', default = 0, dest = 'num_med')
 
     # Parsing options (observer)
     parser.add_argument('-l', metavar = 'Latitude', type = float, help = 'The latitude of the antenna\'s position as a float, north is positive', default = 0.0, dest = 'latitude')
@@ -73,7 +74,7 @@ def main(args):
             gal_lat, gal_lon = Coordinates_class.galactic()
 
             # Receives and writes data
-            Receiver_class = Receiver(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT)
+            Receiver_class = Receiver(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
             freqs, data = Receiver_class.receive()
 
             # Plots data

@@ -1,4 +1,5 @@
 import operator
+import math
 import numpy as np
 from rtlsdr import RtlSdr
 import matplotlib.pyplot as plt
@@ -21,7 +22,7 @@ import matplotlib.pyplot as plt
 # Receiver class. This needs receiving parameters and will receive data from the SDR
 class Receiver:
     
-    def __init__(self, sample_rate, ppm, resolution, num_FFT):
+    def __init__(self, sample_rate, ppm, resolution, num_FFT, num_med):
 
         self.sdr = RtlSdr()
 
@@ -35,6 +36,7 @@ class Receiver:
 
         self.resolution = 2**resolution
         self.num_FFT = num_FFT
+        self.num_med = num_med
 
     
     # Reads data from SDR, processes and writes it
@@ -51,7 +53,7 @@ class Receiver:
         self.sdr.center_freq = self.sdr.center_freq + 3000000
         blank_PSD = self.sample()
         SNR_spectrum = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
-        SNR_median = self.median(SNR_spectrum)
+        SNR_median = self.median(SNR_spectrum) if self.num_med != 0 else SNR_spectrum
 
         # Close the SDR
         self.sdr.close()
@@ -87,7 +89,7 @@ class Receiver:
     def estimate_SNR(self, data, blank):
         SNR = np.array(data)-np.array(blank)
         # Ghetto noise floor estimate:
-        noise_floor = (SNR[0]+SNR[1]+SNR[2]+SNR[3]+SNR[4])/5
+        noise_floor = sum(SNR[0:10])/10
         shifted_SNR = SNR-noise_floor
 
         return shifted_SNR
@@ -96,7 +98,7 @@ class Receiver:
     # Median filter for rfi-removal
     def median(self, data):
         for i in range(len(data)):
-            data[i] = np.mean(data[i:i+10])
+            data[i] = np.mean(data[i:i+self.num_med])
         return data
 
 
