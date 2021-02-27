@@ -1,21 +1,24 @@
 import os
 import numpy as np
+from Ephem import Coordinates
 import matplotlib.pyplot as plt
 
 from datetime import datetime
 
 class Plot:
-    def __init__(self, freqs, data):
+    def __init__(self, freqs, data, galactic_velocity):
         self.H_FREQUENCY = 1420405000
-        self.c_speed = 299792.458
+        self.c_speed = 299792.458 # km/s
         self.freqs = freqs
         self.data = data
+        self.galactic_velocity = galactic_velocity
 
     def plot(self, ra, dec, low_y, high_y):
         start_freq = self.freqs[0]
         stop_freq = self.freqs[-1]
         SNR, doppler = self.SNR_and_doppler()
-        name = f'ra={ra}, dec={dec}, SNR={SNR}, doppler={doppler}'
+        obj_vel = round(self.galactic_velocity - doppler,0)
+        name = f'ra={ra}, dec={dec}, SNR={SNR}, doppler={doppler}, obj. velocity={obj_vel}'
 
         fig, ax = plt.subplots(figsize=(12,7))
         ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
@@ -38,7 +41,7 @@ class Plot:
         # Adds top x-axis for doppler
         # TODO Correct doppler from galactical coordinates
         doppler = ax.secondary_xaxis('top', functions =(self.doppler_from_freq, self.freq_from_doppler))
-        doppler.set_xlabel('Doppler / km/h')
+        doppler.set_xlabel('Relative doppler / km/s')
         
         # Saves plot
         path = f'./Spectrums/{name}.png'
@@ -52,8 +55,8 @@ class Plot:
         freqs = self.freqs
 
         # Finds SNR in isolated area around the H-line to avoid calculating SNR from noise
-        min_index = (np.abs(freqs-self.freq_from_doppler(-100))).argmin()
-        max_index = (np.abs(freqs-self.freq_from_doppler(100))).argmin()
+        min_index = (np.abs(freqs-self.freq_from_doppler(-120))).argmin()
+        max_index = (np.abs(freqs-self.freq_from_doppler(120))).argmin()
         SNR = max(data[min_index:max_index])
         SNR_index = list(data).index(SNR)
 

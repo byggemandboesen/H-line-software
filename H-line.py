@@ -72,6 +72,7 @@ def main(args):
             Coordinates_class = Coordinates(lat = lat, lon = lon, alt = alt, az = az)
             ra, dec = Coordinates_class.equatorial()
             gal_lat, gal_lon = Coordinates_class.galactic()
+            galactic_velocity = Coordinates_class.galactic_velocity(gal_lat, gal_lon)
 
             # Receives and writes data
             Receiver_class = Receiver(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
@@ -79,7 +80,7 @@ def main(args):
 
             # Plots data
             print('Plotting data...')
-            Plot_class = Plot(freqs = freqs, data = data)
+            Plot_class = Plot(freqs = freqs, data = data, galactic_velocity = galactic_velocity)
             Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
             
             if num_data != 0:
@@ -101,7 +102,7 @@ def read_config():
     return json_config
 
 def clear_console():
-    os.system('cls' if os.name=='nt' else 'clear')
+    os.system('cls' if os.name =='nt' else 'clear')
 
 if __name__ == "__main__":
     parser()
