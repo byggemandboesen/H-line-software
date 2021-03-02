@@ -17,7 +17,7 @@ class Plot:
         start_freq = self.freqs[0]
         stop_freq = self.freqs[-1]
         SNR, doppler = self.SNR_and_doppler()
-        obj_vel = round(self.galactic_velocity - doppler,0)
+        obj_vel = round(self.galactic_velocity - doppler, 1)
         name = f'ra={ra}, dec={dec}, SNR={SNR}, doppler={doppler}, obj. velocity={obj_vel}'
 
         fig, ax = plt.subplots(figsize=(12,7))
@@ -41,7 +41,7 @@ class Plot:
         # Adds top x-axis for doppler
         # TODO Correct doppler from galactical coordinates
         doppler = ax.secondary_xaxis('top', functions =(self.doppler_from_freq, self.freq_from_doppler))
-        doppler.set_xlabel('Relative doppler / km/s')
+        doppler.set_xlabel(r'Relative doppler / $\frac{km}{s}$')
         
         # Saves plot
         path = f'./Spectrums/{name}.png'
@@ -61,7 +61,7 @@ class Plot:
         SNR_index = list(data).index(SNR)
 
         doppler = self.doppler_from_freq(freqs[SNR_index])
-        return round(SNR, 3), round(doppler, 0)
+        return round(SNR, 3), round(doppler, 1)
 
 
     # Returns doppler from frequency

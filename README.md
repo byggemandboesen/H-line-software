@@ -65,4 +65,4 @@ Where 50000 FFT's are used, coordinates from config is used and the interval of 
 * More accurate data collection timing from sample rate
 * Correct doppler from observed galactic coordinates
 * ~~RFI removal~~
-* Installation on Linux
+* ~~Installation on Linux~~
