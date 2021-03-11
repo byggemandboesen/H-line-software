@@ -14,10 +14,9 @@ pip install numpy
 pip install pyrtlsdr
 pip install pyephem
 ~~~
-For installing on Linux, make sure to use "pip3 install ...".
 
 ### Linux
-When installing on Linux, one should install librtlsdr-dev.
+When installing on Linux, one should install librtlsdr-dev, and make sure to use "pip3 install ...".
 ~~~
 sudo apt install librtlsdr-dev
 ~~~
@@ -61,8 +60,8 @@ Where 50000 FFT's are used, coordinates from config is used and the interval of 
 
 ## TODO
 * Direct bias-t interaction
-* ~~Calculate relative doppler~~
-* More accurate data collection timing from sample rate
+* Redesign plot with small Milky way map and observed point
 * Correct doppler from observed galactic coordinates
+* ~~Calculate relative doppler~~
 * ~~RFI removal~~
 * ~~Installation on Linux~~

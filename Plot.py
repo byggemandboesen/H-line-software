@@ -2,8 +2,18 @@ import os
 import numpy as np
 from Ephem import Coordinates
 import matplotlib.pyplot as plt
-
+from matplotlib.pyplot import GridSpec
 from datetime import datetime
+
+# Check matplotlib version
+mpl_version = matplotlib.__version__.split('.')
+int_version = int(''.join(num for num in mpl_version))
+if int_version < 310:
+    print('Please install matplotlib 3.1.0 or later')
+    quit()
+
+
+# TODO Plot map and antenna direction
 
 class Plot:
     def __init__(self, freqs, data, galactic_velocity):
@@ -45,6 +55,7 @@ class Plot:
         
         # Saves plot
         path = f'./Spectrums/{name}.png'
+        plt.tight_layout()
         plt.savefig(path, dpi = 300)
         plt.close()
 
