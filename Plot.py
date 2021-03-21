@@ -5,13 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import GridSpec
 from datetime import datetime
 
-# Check matplotlib version
-mpl_version = matplotlib.__version__.split('.')
-int_version = int(''.join(num for num in mpl_version))
-if int_version < 310:
-    print('Please install matplotlib 3.1.0 or later')
-    quit()
-
 
 # TODO Plot map and antenna direction
 
