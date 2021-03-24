@@ -27,7 +27,7 @@ def parser():
 
     # Parsing options (observer)
     parser.add_argument('-l', metavar = 'Latitude', type = float, help = 'The latitude of the antenna\'s position as a float, north is positive', default = 0.0, dest = 'latitude')
-    parser.add_argument('-g', metavar = 'Longitude', type = float, help = 'The latitude of the antenna\'s position as a float, east is positive', default = 0.0, dest = 'longitude')
+    parser.add_argument('-g', metavar = 'Longitude', type = float, help = 'The longitude of the antenna\'s position as a float, east is positive', default = 0.0, dest = 'longitude')
     parser.add_argument('-z', metavar = 'Azimuth', type = float, help = 'The azimuth of the poting direction', default = 0.0, dest = 'azimuth')
     parser.add_argument('-a', metavar = 'Altitude', type = float, help = 'The elevation of the pointing direction', default = 0.0, dest = 'altitude')
     parser.add_argument('-c', help = 'Use lat, lon of QTH and antenna alt/az from config file', action = 'store_true', dest = 'use_config')

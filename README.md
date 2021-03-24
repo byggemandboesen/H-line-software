@@ -38,7 +38,7 @@ optional arguments:
   -i Degree interval   Degree interval of each data-collection. Collects data for 24h.
   -m Median smoothing  Number of data-points to compute median from. Smooths data and compresses noise
   -l Latitude          The latitude of the antenna's position as a float, north is positive
-  -g Longitude         The latitude of the antenna's position as a float, east is positive
+  -g Longitude         The longitude of the antenna's position as a float, east is positive
   -z Azimuth           The azimuth of the poting direction
   -a Altitude          The elevation of the pointing direction
   -c                   Use lat, lon of QTH and antenna alt/az from config file
