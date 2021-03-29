@@ -28,7 +28,7 @@ class Coordinates:
 
     # Calculates apparent velocity of galactic coordinate
     def galactic_velocity(self, lat, lon):
-        orb_vel = 230 # km/s
+        orb_vel = 220 # km/s
         # Radian stuff
         lat = lat * np.pi / 180
         lon = lon * np.pi / 180
