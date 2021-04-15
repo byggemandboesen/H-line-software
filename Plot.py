@@ -22,28 +22,36 @@ class Plot:
         SNR, doppler = self.SNR_and_doppler()
         obj_vel = round(self.galactic_velocity - doppler, 1)
         name = f'ra={ra}, dec={dec}, SNR={SNR}, doppler={doppler}, obj. velocity={obj_vel}'
+        
+        fig = plt.figure(figsize=(20,12))
+        fig.suptitle(name)
+        grid = fig.add_gridspec(2,2)
 
-        fig, ax = plt.subplots(figsize=(12,7))
-        ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
+        details_ax = fig.add_subplot(grid[0, 0])
+        sky_ax = fig.add_subplot(grid[0, 1])
+        spectrum_ax = fig.add_subplot(grid[1, :])
+
+        spectrum_ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
 
         # Plots theoretical H-line frequency
-        ax.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', label = 'Theoretical frequency')
+        spectrum_ax.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', label = 'Theoretical frequency')
         
         # Sets axis labels and adds legend & grid
         ylabel ='Signal to noise ratio (SNR) / dB'
         xlabel = 'Frequency / Hz'
-        ax.set(title = name, xlabel = xlabel, ylabel = ylabel)
-        ax.set(xlim = [start_freq, stop_freq])
-        ax.legend(prop = {'size': 8})
-        ax.grid()
+
+        spectrum_ax.set(xlabel = xlabel, ylabel = ylabel)
+        spectrum_ax.set(xlim = [start_freq, stop_freq])
+        spectrum_ax.legend(prop = {'size': 8})
+        spectrum_ax.grid()
 
         # Adds y-axis interval if supplied in config.txt
         if not "none" in (low_y, high_y):
-            ax.set(ylim = [low_y, high_y])
+            spectrum_ax.set(ylim = [low_y, high_y])
 
         # Adds top x-axis for doppler
         # TODO Correct doppler from galactical coordinates
-        doppler = ax.secondary_xaxis('top', functions =(self.doppler_from_freq, self.freq_from_doppler))
+        doppler = spectrum_ax.secondary_xaxis('top', functions =(self.doppler_from_freq, self.freq_from_doppler))
         doppler.set_xlabel(r'Relative doppler / $\frac{km}{s}$')
         
         # Saves plot
