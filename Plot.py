@@ -3,6 +3,7 @@ import numpy as np
 from Ephem import Coordinates
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import GridSpec
+from matplotlib import colors
 from datetime import datetime
 
 
@@ -17,11 +18,7 @@ class Plot:
         self.galactic_velocity = galactic_velocity
 
     def plot(self, ra, dec, low_y, high_y):
-        start_freq = self.freqs[0]
-        stop_freq = self.freqs[-1]
-        SNR, doppler = self.SNR_and_doppler()
-        obj_vel = round(self.galactic_velocity - doppler, 1)
-        name = f'ra={ra}, dec={dec}, SNR={SNR}, doppler={doppler}, obj. velocity={obj_vel}'
+        name = f'Observation'
         
         fig = plt.figure(figsize=(20,12))
         fig.suptitle(name)
@@ -31,34 +28,83 @@ class Plot:
         sky_ax = fig.add_subplot(grid[0, 1])
         spectrum_ax = fig.add_subplot(grid[1, :])
 
-        spectrum_ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
+        self.spectrum_grid(spectrum_ax, low_y, high_y)
+        self.sky_grid(sky_ax, ra, dec)
+        self.detail_grid(details_ax, ra, dec)
 
-        # Plots theoretical H-line frequency
-        spectrum_ax.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', label = 'Theoretical frequency')
-        
-        # Sets axis labels and adds legend & grid
-        ylabel ='Signal to noise ratio (SNR) / dB'
-        xlabel = 'Frequency / Hz'
-
-        spectrum_ax.set(xlabel = xlabel, ylabel = ylabel)
-        spectrum_ax.set(xlim = [start_freq, stop_freq])
-        spectrum_ax.legend(prop = {'size': 8})
-        spectrum_ax.grid()
-
-        # Adds y-axis interval if supplied in config.txt
-        if not "none" in (low_y, high_y):
-            spectrum_ax.set(ylim = [low_y, high_y])
-
-        # Adds top x-axis for doppler
-        # TODO Correct doppler from galactical coordinates
-        doppler = spectrum_ax.secondary_xaxis('top', functions =(self.doppler_from_freq, self.freq_from_doppler))
-        doppler.set_xlabel(r'Relative doppler / $\frac{km}{s}$')
         
         # Saves plot
         path = f'./Spectrums/{name}.png'
         plt.tight_layout()
         plt.savefig(path, dpi = 300)
         plt.close()
+
+
+    # Arrange detail grid
+    # TODO: Properly center table
+    def detail_grid(self, ax, ra, dec):
+        ax.axis('off')
+
+        SNR, doppler = self.SNR_and_doppler()
+        titles = ['Right ascension / degrees', 'Declination / degrees', 'SNR / dB', r'Relative doppler / $\frac{km}{s}$']
+        values = [
+            [fr'{ra}$^\circ$'],
+            [fr'{dec}$^\circ$'],
+            [f'{SNR}dB'],
+            [f'{doppler}' + r'$\frac{km}{s}$']]
+
+        loc = 'center'
+        colwidth = [0.25, 0.15]
+        color = [colors.to_rgba('g', 0.25)]*4
+
+        table = ax.table(cellText = values, rowLabels = titles, rowColours = color, rowLoc = loc, cellLoc = loc, loc = loc, colWidths = colwidth)
+        table.set_fontsize(16)
+        table.scale(1, 2)
+    
+    
+    # Arrange sky grid
+    def sky_grid(self, ax, ra, dec):
+        # Set x- and y-ticks for RA, Dec coordinates
+        RA_ticks = [0, 1, 2, 3, 4, 5, 6]
+        RA_labels = [0, 4, 8, 12, 16, 20, 24]
+        Dec_ticks = [0, 1, 2, 3, 4, 5, 6]
+        Dec_labels = [-90, -60, -30, 0, 30, 60, 90]
+        ax.set(xticks = RA_ticks, xticklabels = RA_labels, xlabel = 'Right ascension / degrees')
+        ax.set(yticks = Dec_ticks, yticklabels = Dec_labels, ylabel = 'Declination / degrees')
+        ax.set(title = 'Antenna direction')
+
+
+
+    # Arranges spectrum grid
+    def spectrum_grid(self, ax, low_y, high_y):
+        start_freq = self.freqs[0]
+        stop_freq = self.freqs[-1]
+        SNR, doppler = self.SNR_and_doppler()
+        obj_vel = round(self.galactic_velocity - doppler, 1)
+
+        ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
+
+        # Plots theoretical H-line frequency
+        ax.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', label = 'Theoretical frequency')
+        
+        # Sets axis labels and adds legend & grid
+        ylabel ='Signal to noise ratio (SNR) / dB'
+        xlabel = 'Frequency / Hz'
+        title = 'FFT spectrum'
+
+        ax.set(xlabel = xlabel, ylabel = ylabel, title = title)
+        ax.set(xlim = [start_freq, stop_freq])
+        ax.legend(prop = {'size': 8})
+        ax.grid()
+
+        # Adds y-axis interval if supplied in config.txt
+        if not "none" in (low_y, high_y):
+            ax.set(ylim = [low_y, high_y])
+
+        # Adds top x-axis for doppler
+        # TODO Correct doppler from galactical coordinates
+        doppler = ax.secondary_xaxis('top', functions =(self.doppler_from_freq, self.freq_from_doppler))
+        doppler.set_xlabel(r'Relative doppler / $\frac{km}{s}$')
 
 
     # Returns highest SNR and doppler of the highest peak    
