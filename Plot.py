@@ -20,17 +20,23 @@ class Plot:
     def plot(self, ra, dec, low_y, high_y):
         name = f'Observation'
         
-        fig = plt.figure(figsize=(20,12))
-        fig.suptitle(name)
-        grid = fig.add_gridspec(2,2)
+        plt.style.use('dark_background')
 
-        details_ax = fig.add_subplot(grid[0, 0])
-        sky_ax = fig.add_subplot(grid[0, 1])
-        spectrum_ax = fig.add_subplot(grid[1, :])
+        if 'none' in (ra, dec):
+            fig, ax = plt.subplots(figsize = (12, 7))
+            self.spectrum_grid(ax, low_y, high_y)
+        else:
+            fig = plt.figure(figsize=(20,12))
+            fig.suptitle(name)
+            grid = fig.add_gridspec(2,2)
 
-        self.spectrum_grid(spectrum_ax, low_y, high_y)
-        self.sky_grid(sky_ax, ra, dec)
-        self.detail_grid(details_ax, ra, dec)
+            details_ax = fig.add_subplot(grid[0, 0])
+            sky_ax = fig.add_subplot(grid[0, 1])
+            spectrum_ax = fig.add_subplot(grid[1, :])
+
+            self.spectrum_grid(spectrum_ax, low_y, high_y)
+            self.sky_grid(sky_ax, ra, dec)
+            self.detail_grid(details_ax, ra, dec)
 
         
         # Saves plot
@@ -55,9 +61,10 @@ class Plot:
 
         loc = 'center'
         colwidth = [0.25, 0.15]
-        color = [colors.to_rgba('g', 0.25)]*4
+        rowcolor = [colors.to_rgba('g', 0.25)]*4
+        cellcolor = ['k']*4
 
-        table = ax.table(cellText = values, rowLabels = titles, rowColours = color, rowLoc = loc, cellLoc = loc, loc = loc, colWidths = colwidth)
+        table = ax.table(cellText = values, rowLabels = titles, rowColours = rowcolor, cellColours = cellcolor, rowLoc = loc, cellLoc = loc, loc = loc, colWidths = colwidth)
         table.set_fontsize(16)
         table.scale(1, 2)
     
@@ -66,12 +73,18 @@ class Plot:
     def sky_grid(self, ax, ra, dec):
         # Set x- and y-ticks for RA, Dec coordinates
         RA_ticks = [0, 1, 2, 3, 4, 5, 6]
-        RA_labels = [0, 4, 8, 12, 16, 20, 24]
+        RA_labels = [0, 60, 120, 180, 240, 300, 360]
         Dec_ticks = [0, 1, 2, 3, 4, 5, 6]
         Dec_labels = [-90, -60, -30, 0, 30, 60, 90]
-        ax.set(xticks = RA_ticks, xticklabels = RA_labels, xlabel = 'Right ascension / degrees')
-        ax.set(yticks = Dec_ticks, yticklabels = Dec_labels, ylabel = 'Declination / degrees')
+        ax.set(xlim = (0, 360), ylim = (-90, 90))
         ax.set(title = 'Antenna direction')
+        ax.axvline(x = ra, color = 'red', linestyle = ':', linewidth = 1, label = 'Right ascension')
+        ax.axhline(y = dec, color = 'red', linestyle = ':', linewidth = 1, label = 'Declination')
+        # TODO: Fix axis ticks and labels
+        ax.plot(ra, dec, marker = '.', markersize = 15, color = 'red')
+        # ax.set(xticks = RA_ticks, xticklabels = RA_labels, xlabel = 'Right ascension / degrees')
+        # ax.set(yticks = Dec_ticks, yticklabels = Dec_labels, ylabel = 'Declination / degrees')
+        
 
 
 
@@ -80,12 +93,12 @@ class Plot:
         start_freq = self.freqs[0]
         stop_freq = self.freqs[-1]
         SNR, doppler = self.SNR_and_doppler()
-        obj_vel = round(self.galactic_velocity - doppler, 1)
+        # obj_vel = round(self.galactic_velocity - doppler, 1)
 
-        ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
+        ax.plot(self.freqs, self.data, color = 'lime', label = 'Observed data')
 
         # Plots theoretical H-line frequency
-        ax.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', label = 'Theoretical frequency')
+        ax.axvline(x = self.H_FREQUENCY, color = 'red', linestyle = ':', linewidth = 2, label = 'Theoretical frequency')
         
         # Sets axis labels and adds legend & grid
         ylabel ='Signal to noise ratio (SNR) / dB'

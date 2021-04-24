@@ -70,9 +70,13 @@ def main(args):
 
             # Get current equatorial and galactic coordinates of antenna RA and Declination
             Coordinates_class = Coordinates(lat = lat, lon = lon, alt = alt, az = az)
-            ra, dec = Coordinates_class.equatorial()
-            gal_lat, gal_lon = Coordinates_class.galactic()
-            galactic_velocity = Coordinates_class.galactic_velocity(gal_lat, gal_lon)
+            if 0.0 == lat == lon == alt == az:
+                ra, dec = 'none', 'none'
+                galactic_velocity = 'N/A'
+            else:
+                ra, dec = Coordinates_class.equatorial()
+                gal_lat, gal_lon = Coordinates_class.galactic()
+                galactic_velocity = Coordinates_class.galactic_velocity(gal_lat, gal_lon)
 
             # Receives and writes data
             Receiver_class = Receiver(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
