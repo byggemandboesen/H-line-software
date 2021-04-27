@@ -18,16 +18,16 @@ class Plot:
         self.galactic_velocity = galactic_velocity
 
     def plot(self, ra, dec, low_y, high_y):
-        name = f'Observation'
+        name = 'Observation'
         
-        plt.style.use('dark_background')
+        # plt.style.use('dark_background')
 
         if 'none' in (ra, dec):
             fig, ax = plt.subplots(figsize = (12, 7))
             self.spectrum_grid(ax, low_y, high_y)
         else:
             fig = plt.figure(figsize=(20,12))
-            fig.suptitle(name)
+            fig.suptitle('H-line observation', fontsize = 20)
             grid = fig.add_gridspec(2,2)
 
             details_ax = fig.add_subplot(grid[0, 0])
@@ -52,7 +52,8 @@ class Plot:
         ax.axis('off')
 
         SNR, doppler = self.SNR_and_doppler()
-        titles = ['Right ascension / degrees', 'Declination / degrees', 'SNR / dB', r'Relative doppler / $\frac{km}{s}$']
+        title = ['Parameters']
+        labels = ['RA', 'Dec', 'SNR', 'Doppler']
         values = [
             [fr'{ra}$^\circ$'],
             [fr'{dec}$^\circ$'],
@@ -60,30 +61,46 @@ class Plot:
             [f'{doppler}' + r'$\frac{km}{s}$']]
 
         loc = 'center'
-        colwidth = [0.25, 0.15]
-        rowcolor = [colors.to_rgba('g', 0.25)]*4
-        cellcolor = ['k']*4
+        colwidth = [0.5, 0.1]
+        color = [colors.to_rgba('g', 0.25)]*4
+        # cellcolor = ['k']*4
 
-        table = ax.table(cellText = values, rowLabels = titles, rowColours = rowcolor, cellColours = cellcolor, rowLoc = loc, cellLoc = loc, loc = loc, colWidths = colwidth)
-        table.set_fontsize(16)
+        table = ax.table(cellText = values, colLabels = title, rowLabels = labels, colColours = color, rowColours = color, rowLoc = loc, cellLoc = loc, loc = 9, colWidths = colwidth)
+        table.set_fontsize(24)
+        # Adjust font size inside cells
+        cells = table.get_celld().items()
+        for key, cell in table.get_celld().items():
+            if key[1] == 0 and key[0] != 0:
+                cell.set_fontsize(10)
+                print(key, cell.get_text().get_text())
+            
+
         table.scale(1, 2)
     
     
     # Arrange sky grid
     def sky_grid(self, ax, ra, dec):
+        ax.set(title = 'Milky Way H-line map')
+
+        # Huge thanks to the Virgo and Pictor project for sharing their code for the hydrogen line map!
+        img = np.loadtxt('map.txt')
+        flipimg = np.flip(img, 1)
+        ax.imshow(flipimg, extent = [360, 0, -90, 90], interpolation = 'none')
+
         # Set x- and y-ticks for RA, Dec coordinates
-        RA_ticks = [0, 1, 2, 3, 4, 5, 6]
-        RA_labels = [0, 60, 120, 180, 240, 300, 360]
-        Dec_ticks = [0, 1, 2, 3, 4, 5, 6]
-        Dec_labels = [-90, -60, -30, 0, 30, 60, 90]
-        ax.set(xlim = (0, 360), ylim = (-90, 90))
-        ax.set(title = 'Antenna direction')
-        ax.axvline(x = ra, color = 'red', linestyle = ':', linewidth = 1, label = 'Right ascension')
-        ax.axhline(y = dec, color = 'red', linestyle = ':', linewidth = 1, label = 'Declination')
-        # TODO: Fix axis ticks and labels
-        ax.plot(ra, dec, marker = '.', markersize = 15, color = 'red')
+        # ax.set(xlim = (0, 360), ylim = (-90, 90))
+        # RA_ticks = [0, 1, 2, 3, 4, 5, 6]
+        # RA_labels = [0, 60, 120, 180, 240, 300, 360]
+        # Dec_ticks = [0, 1, 2, 3, 4, 5, 6]
+        # Dec_labels = [-90, -60, -30, 0, 30, 60, 90]
         # ax.set(xticks = RA_ticks, xticklabels = RA_labels, xlabel = 'Right ascension / degrees')
         # ax.set(yticks = Dec_ticks, yticklabels = Dec_labels, ylabel = 'Declination / degrees')
+
+        ax.axvline(x = ra, color = 'r', linestyle = ':', linewidth = 1)
+        ax.axhline(y = dec, color = 'r', linestyle = ':', linewidth = 1)
+        # TODO: Fix axis ticks and labels
+        ax.plot(ra, dec, marker = '.', markersize = 15, color = 'r', label = 'LAB HI Survey (Kalberla et al., 2005)')
+        ax.legend(prop = {'size': 10})
         
 
 
@@ -95,10 +112,10 @@ class Plot:
         SNR, doppler = self.SNR_and_doppler()
         # obj_vel = round(self.galactic_velocity - doppler, 1)
 
-        ax.plot(self.freqs, self.data, color = 'lime', label = 'Observed data')
+        ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
 
         # Plots theoretical H-line frequency
-        ax.axvline(x = self.H_FREQUENCY, color = 'red', linestyle = ':', linewidth = 2, label = 'Theoretical frequency')
+        ax.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', linewidth = 2, label = 'Theoretical frequency')
         
         # Sets axis labels and adds legend & grid
         ylabel ='Signal to noise ratio (SNR) / dB'
@@ -107,7 +124,7 @@ class Plot:
 
         ax.set(xlabel = xlabel, ylabel = ylabel, title = title)
         ax.set(xlim = [start_freq, stop_freq])
-        ax.legend(prop = {'size': 8})
+        ax.legend(prop = {'size': 10})
         ax.grid()
 
         # Adds y-axis interval if supplied in config.txt
@@ -120,7 +137,7 @@ class Plot:
         doppler.set_xlabel(r'Relative doppler / $\frac{km}{s}$')
 
 
-    # Returns highest SNR and doppler of the highest peak    
+    # Returns highest SNR and doppler of the highest peak
     def SNR_and_doppler(self):
         data = self.data
         freqs = self.freqs
