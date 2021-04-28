@@ -52,7 +52,7 @@ class Receiver:
         # Samples a blank spectrum to callibrate spectrum with.
         self.sdr.center_freq = self.sdr.center_freq + 3000000
         blank_PSD = self.sample()
-        SNR_spectrum = self.estimate_SNR(data = data_PSD, blank = blank_PSD)
+        SNR_spectrum = self.estimate_SNR(data = data_PSD, blank = blank_PSD, freqs = freqs)
         SNR_median = self.median(SNR_spectrum) if self.num_med != 0 else SNR_spectrum
 
         # Close the SDR
@@ -86,10 +86,13 @@ class Receiver:
 
 
     # Calculates SNR from spectrum and H-line SNR
-    def estimate_SNR(self, data, blank):
+    def estimate_SNR(self, data, blank, freqs):
         SNR = np.array(data)-np.array(blank)
         # Ghetto noise floor estimate:
-        noise_floor = sum(SNR[0:10])/10
+        min_index = (np.abs(np.array(freqs)-1420*10**6)).argmin()
+        max_index = (np.abs(np.array(freqs)-1421*10**6)).argmin()
+        sliced = np.concatenate((SNR[:min_index], SNR[max_index:]))
+        noise_floor = sum(sliced)/len(sliced)
         shifted_SNR = SNR-noise_floor
 
         return shifted_SNR
