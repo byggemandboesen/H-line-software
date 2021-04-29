@@ -18,9 +18,7 @@ class Plot:
         self.galactic_velocity = galactic_velocity
 
     def plot(self, ra, dec, low_y, high_y):
-        name = 'Observation'
-        
-        # plt.style.use('dark_background')
+        name = f'ra={ra},dec={dec}'
 
         if 'none' in (ra, dec):
             fig, ax = plt.subplots(figsize = (12, 7))
@@ -62,20 +60,21 @@ class Plot:
 
         loc = 'center'
         colwidth = [0.5, 0.1]
-        color = [colors.to_rgba('g', 0.25)]*4
-        # cellcolor = ['k']*4
+        color = [colors.to_rgba('g', 0.4)]*4
 
         table = ax.table(cellText = values, colLabels = title, rowLabels = labels, colColours = color, rowColours = color, rowLoc = loc, cellLoc = loc, loc = 9, colWidths = colwidth)
-        table.set_fontsize(24)
+        table.set_fontsize(22)
         # Adjust font size inside cells
-        cells = table.get_celld().items()
-        for key, cell in table.get_celld().items():
-            if key[1] == 0 and key[0] != 0:
-                cell.set_fontsize(10)
-                print(key, cell.get_text().get_text())
+        # cells = table.get_celld()
+        # cells[(1,0)].set_fontsize(10)
+
+        # for key, cell in table.get_celld().items():
+        #     if key[1] == 0 and key[0] != 0:
+        #         cell.set_fontsize(10)
+        #         print(key, cell.get_text().get_text())
             
 
-        table.scale(1, 2)
+        table.scale(1.5, 3)
     
     
     # Arrange sky grid
