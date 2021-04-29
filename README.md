@@ -2,6 +2,11 @@
 This software is created with the main purpose of receiving the hydrogen line at a frequency of approximately 1420.4MHz. <br>
 The software uses the [pyrtlsdr library](https://github.com/roger-/pyrtlsdr) to collect samples from the RTL-SDR V3.0 dongle and numpy to perform FFT and signal processing. Finally, the data is shown in a chart from the pyplot library in matplotlib.
 
+## Why choose this software?
+This project started as a project of my own to make radio astronomy easy and affordable for everyone. There are great pieces of software out there, [Virgo](https://github.com/0xCoto/Virgo) and [Pictor](https://github.com/0xCoto/PICTOR) are personal favourites and inspirations for my own software. <br>
+Although these require setting up a GNU radio environment, which can sometimes be difficult and too much to ask for it you're a beginner/newcomer to the hobby. It's this exact reason I wanted to create a piece of software that will run on many operating systems and only depend on a couple of python packages. <br>
+TL;DR, you should choose this software if you don't have much experience with the GNU radio environment and software defined radios in generel.
+
 ## Installing
 As usual, the code should be downloaded with git clone.
 ~~~
@@ -71,6 +76,14 @@ On Linux the same command would be:
 ~~~
 python3 H-line.py -n 50000 -c
 ~~~
+
+## Using this with E4000 tuners
+Since the intention of this software is to motivate amateurs to give radio astronomy a try the versatility of the software is limited to the packages available. The RTL2832U tuner is well supported by the pyrtlsdr package Although it does lack certain features like offset tuning, which results in degraded performance for E4000 tuner SDR's like the Nooelec Smart XTR for example. <br>
+If the pyrtlsdr package improves/introduces new features that allow for further improvements I will be implementing these in my software ASAP.
+
+## Contributions/credit
+I would like to thank [0xCoto](https://github.com/0xCoto) AKA "Apostolos" for letting me use the hydrogen map from the Pictor and Virgo projects. <br>
+I really appreciate his work for the amateur radio astronomy community!
 
 ## TODO
 * Direct bias-t interaction
