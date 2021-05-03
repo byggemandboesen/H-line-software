@@ -77,6 +77,10 @@ On Linux the same command would be:
 python3 H-line.py -n 50000 -c
 ~~~
 
+## Using this with E4000 tuners
+Since the intention of this software is to motivate amateurs to give radio astronomy a try the versatility of the software is limited to the packages available. The RTL2832U tuner is well supported by the pyrtlsdr package Although it does lack certain features like offset tuning, which results in degraded performance for E4000 tuner SDR's like the Nooelec Smart XTR for example. <br>
+If the pyrtlsdr package improves/introduces new features that allow for further improvements I will be implementing these in my software ASAP.
+
 ## Contributions/credit
 I would like to thank [0xCoto](https://github.com/0xCoto) AKA "Apostolos" for letting me use the hydrogen map from the Pictor and Virgo projects. <br>
 I really appreciate his work for the amateur radio astronomy community!
