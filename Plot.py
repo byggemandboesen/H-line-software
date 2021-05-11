@@ -18,12 +18,13 @@ class Plot:
         self.galactic_velocity = galactic_velocity
 
     def plot(self, ra, dec, low_y, high_y):
-        name = f'ra={ra},dec={dec}'
 
         if 'none' in (ra, dec):
+            name = datetime.utcnow().strftime('D%m%d%YT%H%M%S')
             fig, ax = plt.subplots(figsize = (12, 7))
             self.spectrum_grid(ax, low_y, high_y)
         else:
+            name = f'ra={ra},dec={dec}'
             fig = plt.figure(figsize=(20,12))
             fig.suptitle('H-line observation', fontsize = 20)
             grid = fig.add_gridspec(2,2)
@@ -99,7 +100,7 @@ class Plot:
         ax.axhline(y = dec, color = 'r', linestyle = ':', linewidth = 1)
         # TODO: Fix axis ticks and labels
         ax.plot(ra, dec, marker = '.', markersize = 15, color = 'r', label = 'LAB HI Survey (Kalberla et al., 2005)')
-        ax.legend(prop = {'size': 10})
+        ax.legend(prop = {'size': 10}, loc = 1)
         
 
 
@@ -123,7 +124,7 @@ class Plot:
 
         ax.set(xlabel = xlabel, ylabel = ylabel, title = title)
         ax.set(xlim = [start_freq, stop_freq])
-        ax.legend(prop = {'size': 10})
+        ax.legend(prop = {'size': 10}, loc = 1)
         ax.grid()
 
         # Adds y-axis interval if supplied in config.txt
