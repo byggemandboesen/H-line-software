@@ -1,8 +1,6 @@
 import operator
-import math
 import numpy as np
 from rtlsdr import RtlSdr
-import matplotlib.pyplot as plt
 
 # Available sample rates
 '''

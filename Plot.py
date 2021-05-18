@@ -1,13 +1,9 @@
-import os
 import numpy as np
-from Ephem import Coordinates
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import GridSpec
 from matplotlib import colors
 from datetime import datetime
 
-
-# TODO Plot map and antenna direction
 
 class Plot:
     def __init__(self, freqs, data, galactic_velocity):
