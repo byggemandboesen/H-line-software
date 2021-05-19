@@ -10,6 +10,7 @@ class Coordinates:
         self.QTH.lat = str(lat)
         self.QTH.lon = str(lon)
         self.QTH.pressure = 0
+        self.QTH.elevation = 0
         self.alt = alt
         self.az = az
     
