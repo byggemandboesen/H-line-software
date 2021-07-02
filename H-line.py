@@ -1,8 +1,8 @@
 import os
-import time
 import argparse
 import json
 import numpy as np
+from time import time, sleep
 from datetime import datetime, timedelta
 
 from Receive import Receiver
@@ -62,9 +62,14 @@ def main(args):
     second_interval = 24*60**2/num_data if num_data > 0 else None
 
     if float(num_data).is_integer():
+
+        # Current time of program execution
+        current_time = datetime.utcnow()
+
         for i in range(int(num_data)+1):
 
             # Get current equatorial and galactic coordinates of antenna RA and Declination
+            # TODO Optimize this
             Coordinates_class = Coordinates(lat = lat, lon = lon, alt = alt, az = az)
             if 0.0 == lat == lon == alt == az:
                 ra, dec = 'none', 'none'
@@ -73,11 +78,6 @@ def main(args):
                 ra, dec = Coordinates_class.equatorial()
                 gal_lat, gal_lon = Coordinates_class.galactic()
                 galactic_velocity = Coordinates_class.galactic_velocity(gal_lat, gal_lon)
-
-            # Current time of program execution
-            current_time = datetime.utcnow()
-            if num_data != 0:
-                end_time = current_time + timedelta(seconds = second_interval)
 
             # Receives and writes data
             Receiver_class = Receiver(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
@@ -88,11 +88,13 @@ def main(args):
             Plot_class = Plot(freqs = freqs, data = data, galactic_velocity = galactic_velocity)
             Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
             
+            # Wait for next execution
             if num_data != 0:
+                clear_console()
+                end_time = current_time + timedelta(seconds = second_interval * (i + 1))
                 time_remaining = end_time - datetime.utcnow()
                 print(f'Waiting for next data collection in {time_remaining.total_seconds()} seconds')
-                time.sleep(time_remaining.total_seconds())
-                clear_console()
+                sleep(time_remaining.total_seconds())
 
     else:
         print('360 must be divisable with the degree interval, eg. 360%\interval=0')
