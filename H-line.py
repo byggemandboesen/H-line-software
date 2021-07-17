@@ -63,22 +63,24 @@ def main(args):
 
     if float(num_data).is_integer():
 
-        # Current time of program execution
-        current_time = datetime.utcnow()
-
-        for i in range(int(num_data)+1):
-
+        # Set coordinates for each observation if possible
+        if 0.0 == lat == lon == alt == az:
+            ra, dec = 'none', 'none'
+            galactic_velocity = 'N/A'
+        else:
             # Get current equatorial and galactic coordinates of antenna RA and Declination
-            # TODO Optimize this
             Coordinates_class = Coordinates(lat = lat, lon = lon, alt = alt, az = az)
-            if 0.0 == lat == lon == alt == az:
-                ra, dec = 'none', 'none'
-                galactic_velocity = 'N/A'
-            else:
-                ra, dec = Coordinates_class.equatorial()
-                gal_lat, gal_lon = Coordinates_class.galactic()
-                galactic_velocity = Coordinates_class.galactic_velocity(gal_lat, gal_lon)
+            ra, dec = Coordinates_class.equatorial(num_data, args.interval)
+            gal_lat, gal_lon = Coordinates_class.galactic()
+            galactic_velocity = Coordinates_class.galactic_velocity(gal_lat, gal_lon)
 
+        # Current time of first data collection
+        current_time = datetime.utcnow()
+        num_data = int(num_data)
+        
+
+        # Loop for 24 hours or only once if -i is not used
+        for i in range(num_data + 1):
             # Receives and writes data
             Receiver_class = Receiver(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
             freqs, data = Receiver_class.receive()
@@ -86,10 +88,12 @@ def main(args):
             # Plots data
             print('Plotting data...')
             Plot_class = Plot(freqs = freqs, data = data, galactic_velocity = galactic_velocity)
-            Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
-            
-            # Wait for next execution
-            if num_data != 0:
+            if num_data == 0:
+                Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
+            else:
+                Plot_class.plot(ra = ra[i], dec = dec, low_y = low_y, high_y = high_y)
+
+                # Wait for next execution
                 clear_console()
                 end_time = current_time + timedelta(seconds = second_interval * (i + 1))
                 time_remaining = end_time - datetime.utcnow()
@@ -97,7 +101,7 @@ def main(args):
                 sleep(time_remaining.total_seconds())
 
     else:
-        print('360 must be divisable with the degree interval, eg. 360%\interval=0')
+        print('360 must be divisable with the degree interval. Eg. the quotient must be a positive natural number (1, 2, 3, and not 3.4)')
         quit()
 
 
