@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import GridSpec
+from matplotlib.pyplot import GridSpec, ylabel
 from matplotlib import colors
 from datetime import datetime
 
@@ -61,16 +61,6 @@ class Plot:
 
         table = ax.table(cellText = values, colLabels = title, rowLabels = labels, colColours = color, rowColours = color, rowLoc = loc, cellLoc = loc, loc = 9, colWidths = colwidth)
         table.set_fontsize(22)
-        # Adjust font size inside cells
-        # cells = table.get_celld()
-        # cells[(1,0)].set_fontsize(10)
-
-        # for key, cell in table.get_celld().items():
-        #     if key[1] == 0 and key[0] != 0:
-        #         cell.set_fontsize(10)
-        #         print(key, cell.get_text().get_text())
-            
-
         table.scale(1.5, 3)
     
     
@@ -83,22 +73,14 @@ class Plot:
         flipimg = np.flip(img, 1)
         ax.imshow(flipimg, extent = [360, 0, -90, 90], interpolation = 'none')
 
-        # Set x- and y-ticks for RA, Dec coordinates
-        # ax.set(xlim = (0, 360), ylim = (-90, 90))
-        # RA_ticks = [0, 1, 2, 3, 4, 5, 6]
-        # RA_labels = [0, 60, 120, 180, 240, 300, 360]
-        # Dec_ticks = [0, 1, 2, 3, 4, 5, 6]
-        # Dec_labels = [-90, -60, -30, 0, 30, 60, 90]
-        # ax.set(xticks = RA_ticks, xticklabels = RA_labels, xlabel = 'Right ascension / degrees')
-        # ax.set(yticks = Dec_ticks, yticklabels = Dec_labels, ylabel = 'Declination / degrees')
-
+        # Axis labels
+        ax.set(xlabel = 'Right ascension / degrees', ylabel = 'Declination / degrees')
         ax.axvline(x = ra, color = 'r', linestyle = ':', linewidth = 1)
         ax.axhline(y = dec, color = 'r', linestyle = ':', linewidth = 1)
-        # TODO: Fix axis ticks and labels
+
+        # Plot with legend
         ax.plot(ra, dec, marker = '.', markersize = 15, color = 'r', label = 'LAB HI Survey (Kalberla et al., 2005)')
         ax.legend(prop = {'size': 10}, loc = 1)
-        
-
 
 
     # Arranges spectrum grid
