@@ -20,23 +20,24 @@ from rtlsdr import RtlSdr
 # Receiver class. This needs receiving parameters and will receive data from the SDR
 class Receiver:
     
-    def __init__(self, sample_rate, ppm, resolution, num_FFT, num_med):
+    def __init__(self, TCP, client, sample_rate, ppm, resolution, num_FFT, num_med):
 
-        self.sdr = RtlSdr()
-
-        # configure SDR
-        self.sdr.sample_rate = sample_rate
-        self.sdr.center_freq = 1420405000
-        # For some reason the SDR doesn't want to set the offset PPM to 0 so we avoid that
-        if ppm != 0:
-            self.sdr.freq_correction = ppm
-        self.sdr.gain = 'auto'
+        if TCP:
+            self.sdr = client
+        else:
+            # configure SDR
+            self.sdr = RtlSdr()
+            self.sdr.sample_rate = sample_rate
+            self.sdr.center_freq = 1420405000
+            # For some reason the SDR doesn't want to set the offset PPM to 0 so we avoid that
+            if ppm != 0:
+                self.sdr.freq_correction = ppm
+            self.sdr.gain = 'auto'
 
         self.resolution = 2**resolution
         self.num_FFT = num_FFT
         self.num_med = num_med
 
-    
     # Reads data from SDR, processes and writes it
     def receive(self):
         print(f'Receiving {self.num_FFT} bins of {self.resolution} samples each...')

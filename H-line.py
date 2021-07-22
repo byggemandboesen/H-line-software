@@ -1,10 +1,10 @@
 import os
 import argparse
 import json
-import numpy as np
 from time import time, sleep
 from datetime import datetime, timedelta
 
+from Rtltcp import RTLTCP
 from Receive import Receiver
 from Plot import Plot
 from Ephem import Coordinates
@@ -24,6 +24,8 @@ def parser():
     parser.add_argument('-n', metavar = 'Number of FFT\'s', type = int, help = 'Number of FFT\'s to be collected and averaged', default = 1000, dest = 'num_FFT')
     parser.add_argument('-i', metavar = 'Degree interval', type = float, help = 'Degree interval of each data-collection. Collects data for 24h.', default = 0.0, dest = 'interval')
     parser.add_argument('-m', metavar = 'Median smoothing', type = int, help = 'Number of data-points to compute median from. Smooths data and compresses noise', default = 3, dest = 'num_med')
+    parser.add_argument('-t', help = 'Run RTL-TCP host for streaming to client', action = 'store_true', dest = 'host')
+    parser.add_argument('-e', metavar = 'RTL-TCP streaming', type = str, help = 'Stream from IP of remote server. This command is used for client side.', default = 'none', dest = 'remote_ip')
 
     # Parsing options (observer)
     parser.add_argument('-l', metavar = 'Latitude', type = float, help = 'The latitude of the antenna\'s position as a float, north is positive', default = 0.0, dest = 'latitude')
@@ -42,6 +44,12 @@ def parser():
 def main(args):
 
     config = read_config()
+
+    # Does user want this device to act as RTL-TCP host? If yes - start host
+    if args.host:
+        TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
+        TCP_class.rtltcphost()
+        quit()
 
     # Get y-axis limits from config
     low_y, high_y = config['low_y'], config['high_y']
@@ -81,9 +89,14 @@ def main(args):
 
         # Loop for 24 hours or only once if -i is not used
         for i in range(num_data + 1):
-            # Receives and writes data
-            Receiver_class = Receiver(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
-            freqs, data = Receiver_class.receive()
+            
+            # Receives and writes data - either through RTLTCP or locally
+            if args.remote_ip != 'none':
+                TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
+                freqs, data = TCP_class.rtltcpclient(args.remote_ip)
+            else:
+                Receiver_class = Receiver(TCP = False, client = 0, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
+                freqs, data = Receiver_class.receive()
 
             # Plots data
             print('Plotting data...')
