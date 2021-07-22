@@ -25,6 +25,7 @@ class RTLTCP:
         try:
             hostname = socket.gethostname()
             local_ip = socket.gethostbyname(hostname)
+            print(f'Hosting server at local IP = {local_ip}')
             server = RtlSdrTcpServer(hostname = local_ip, port = 5050)
             print('Starting SDR - Waiting for client (Kill with ctrl + C)')
             server.run_forever()
