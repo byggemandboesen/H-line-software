@@ -1,3 +1,4 @@
+import os
 import socket
 from rtlsdr import RtlSdrTcpServer
 from rtlsdr.rtlsdrtcp.client import RtlSdrTcpClient
@@ -23,8 +24,7 @@ class RTLTCP:
     # Host for RTL-TCP streaming
     def rtltcphost(self):
         try:
-            hostname = socket.gethostname()
-            local_ip = socket.gethostbyname(hostname)
+            local_ip = self.getip()
             print(f'Hosting server at local IP = {local_ip}')
             server = RtlSdrTcpServer(hostname = local_ip, port = 5050)
             print('Starting SDR - Waiting for client (Kill with ctrl + C)')
@@ -51,3 +51,12 @@ class RTLTCP:
         except Exception as err:
             print(f'Type = {type(err)} occured with message = {err}')
             quit()
+
+    # Get ip of device
+    def getip(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8",80))
+        ip_address = str(s.getsockname()[0])
+        s.close()
+        return ip_address
+
