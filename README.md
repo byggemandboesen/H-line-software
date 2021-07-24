@@ -19,6 +19,10 @@ pip install numpy
 pip install pyrtlsdr
 pip install pyephem
 ~~~
+One can also install the required packages from the "requirements.txt":
+~~~
+pip install -r requirements.txt
+~~~
 
 ### Linux
 When installing on Linux, one should install librtlsdr-dev, and make sure to use "pip3 install ...".
@@ -32,7 +36,11 @@ Then run the following command as per [this issue on GitHub](https://github.com/
 ~~~
 sudo apt-get install libatlas-base-dev
 ~~~
-However, it is adviced you run ~~~sudo apt update~~~, ~~~sudo apt upgrade~~~~ if other problems occur.
+However, it is adviced you run the following if other problems occur.:
+~~~
+sudo apt update
+sudo apt upgrade
+~~~~
 
 ### Windows
 If you're using windows, you need to manually download the rtl-sdr drivers and add them to system PATH.
@@ -98,7 +106,7 @@ python3 H-line.py -t
 ~~~
 This will create a server open to port 5050 and the device's local ip, for example 192.168.0.29. If you wish to change to local host, you will have to edit the code itself. <br>
 In Rtltcp.py modify the following line in the function "rtltcphost()": <br>
-~~~
+~~~python
 server = RtlSdrTcpServer(hostname = local_ip, port = 5050)
 server = RtlSdrTcpServer(hostname = '127.0.0.1', port = 5050)
 ~~~
