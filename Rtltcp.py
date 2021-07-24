@@ -1,4 +1,3 @@
-import os
 import socket
 from rtlsdr import RtlSdrTcpServer
 from rtlsdr.rtlsdrtcp.client import RtlSdrTcpClient
@@ -43,10 +42,10 @@ class RTLTCP:
             client.center_freq = 1420405000
             client.sample_rate = self.sample_rate
 
-            Receiver_class = Receiver(TCP = True, client = client,sample_rate = self.sample_rate, ppm = self.ppm, resolution = self.resolution, num_FFT = self.num_FFT, num_med = self.num_med)
+            Receiver_class = Receiver(TCP = True, client = client, sample_rate = self.sample_rate, ppm = self.ppm, resolution = self.resolution, num_FFT = self.num_FFT, num_med = self.num_med)
             freqs, data = Receiver_class.receive()
 
-            return freqs, data    
+            return freqs, data
 
         except Exception as err:
             print(f'Type = {type(err)} occured with message = {err}')

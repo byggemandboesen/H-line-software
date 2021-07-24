@@ -1,4 +1,6 @@
+import os
 import operator
+import contextlib
 import numpy as np
 from rtlsdr import RtlSdr
 
@@ -40,7 +42,6 @@ class Receiver:
 
     # Reads data from SDR, processes and writes it
     def receive(self):
-        print(f'Receiving {self.num_FFT} bins of {self.resolution} samples each...')
         data_PSD = self.sample()
 
         # Observed frequency range

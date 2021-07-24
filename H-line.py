@@ -1,7 +1,8 @@
 import os
-import argparse
 import json
-from time import time, sleep
+import argparse
+import contextlib
+from time import sleep
 from datetime import datetime, timedelta
 
 from Rtltcp import RTLTCP
@@ -91,12 +92,16 @@ def main(args):
         for i in range(num_data + 1):
             
             # Receives and writes data - either through RTLTCP or locally
-            if args.remote_ip != 'none':
-                TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
-                freqs, data = TCP_class.rtltcpclient(args.remote_ip)
-            else:
-                Receiver_class = Receiver(TCP = False, client = 0, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
-                freqs, data = Receiver_class.receive()
+            print(f'Receiving {args.num_FFT} bins of {2 ** args.resolution} samples each...')
+            
+            # Disable console printouts due to pyrtlsdr printing repeating message when using RTL-TCP
+            with contextlib.redirect_stdout(None):
+                if args.remote_ip != 'none':
+                    TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
+                    freqs, data = TCP_class.rtltcpclient(args.remote_ip)
+                else:
+                    Receiver_class = Receiver(TCP = False, client = 0, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
+                    freqs, data = Receiver_class.receive()
 
             # Plots data
             print('Plotting data...')
