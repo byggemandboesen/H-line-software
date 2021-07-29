@@ -122,7 +122,8 @@ I really appreciate his work for the amateur radio astronomy community!
 
 ## TODO
 * Direct bias-t interaction
-* Calculate Earth's velocity towards observed area from galactic/equatorial coordinates
+* *Stream data to live plot*
+* ~~Calculate Earth's velocity towards observed area from galactic/equatorial coordinates~~
 * ~~Redesign plot with small Milky way map and observed point~~
 * ~~RFI removal~~
 * ~~Installation on Linux~~

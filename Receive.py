@@ -1,6 +1,4 @@
-import os
 import operator
-import contextlib
 import numpy as np
 from rtlsdr import RtlSdr
 
@@ -21,7 +19,8 @@ from rtlsdr import RtlSdr
 
 # Receiver class. This needs receiving parameters and will receive data from the SDR
 class Receiver:
-    
+
+    # Initate SDR (either TCP or physical device) and observing parameters
     def __init__(self, TCP, client, sample_rate, ppm, resolution, num_FFT, num_med):
 
         if TCP:
@@ -39,6 +38,7 @@ class Receiver:
         self.resolution = 2**resolution
         self.num_FFT = num_FFT
         self.num_med = num_med
+
 
     # Reads data from SDR, processes and writes it
     def receive(self):

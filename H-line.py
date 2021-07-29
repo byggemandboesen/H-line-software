@@ -75,13 +75,13 @@ def main(args):
         # Set coordinates for each observation if possible
         if 0.0 == lat == lon == alt == az:
             ra, dec = 'none', 'none'
-            galactic_velocity = 'N/A'
+            observer_velocity = 'N/A'
         else:
             # Get current equatorial and galactic coordinates of antenna RA and Declination
             Coordinates_class = Coordinates(lat = lat, lon = lon, alt = alt, az = az)
             ra, dec = Coordinates_class.equatorial(num_data, args.interval)
             gal_lat, gal_lon = Coordinates_class.galactic()
-            galactic_velocity = Coordinates_class.galactic_velocity(gal_lat, gal_lon)
+            observer_velocity = Coordinates_class.observer_velocity(gal_lat, gal_lon)
 
         # Current time of first data collection
         current_time = datetime.utcnow()
@@ -105,7 +105,7 @@ def main(args):
 
             # Plots data
             print('Plotting data...')
-            Plot_class = Plot(freqs = freqs, data = data, galactic_velocity = galactic_velocity)
+            Plot_class = Plot(freqs = freqs, data = data, observer_velocity = observer_velocity)
             if num_data == 0:
                 Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
             else:

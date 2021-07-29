@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from datetime import datetime
 
-
 class Plot:
-    def __init__(self, freqs, data, galactic_velocity):
+
+    def __init__(self, freqs, data, observer_velocity):
         self.H_FREQUENCY = 1420405000
         self.c_speed = 299792.458 # km/s
         self.freqs = freqs
         self.data = data
-        self.galactic_velocity = galactic_velocity
+        self.observer_velocity = observer_velocity
 
     def plot(self, ra, dec, low_y, high_y):
 
@@ -21,7 +21,7 @@ class Plot:
         else:
             name = f'ra={ra},dec={dec}'
             fig = plt.figure(figsize=(20,12))
-            fig.suptitle('H-line observation', fontsize = 20)
+            fig.suptitle('H-line observation', fontsize = 22, y = 0.99)
             grid = fig.add_gridspec(2,2)
 
             details_ax = fig.add_subplot(grid[0, 0])
@@ -35,7 +35,7 @@ class Plot:
         
         # Saves plot
         path = f'./Spectrums/{name}.png'
-        plt.tight_layout()
+        plt.tight_layout(pad = 1.5)
         plt.savefig(path, dpi = 300)
         plt.close()
 
@@ -46,21 +46,25 @@ class Plot:
         ax.axis('off')
 
         SNR, doppler = self.SNR_and_doppler()
-        title = ['Parameters']
-        labels = ['RA', 'Dec', 'SNR', 'Doppler']
+        observer_vel = round(self.observer_velocity, 1)
+        source_vel = round(doppler - observer_vel, 1)
+        title = ['Values']
+        labels = ['RA', 'Dec', 'Peak SNR', 'Doppler', 'Observer vel.', 'Source vel.']
         values = [
             [fr'{ra}$^\circ$'],
             [fr'{dec}$^\circ$'],
             [f'{SNR}dB'],
-            [f'{doppler}' + r'$\frac{km}{s}$']]
+            [f'{doppler}' + r'$\frac{km}{s}$'],
+            [f'{observer_vel}' + r'$\frac{km}{s}$'],
+            [f'{source_vel}' + r'$\frac{km}{s}$']]
 
         loc = 'center'
-        colwidth = [0.5, 0.1]
-        color = [colors.to_rgba('g', 0.4)]*4
+        colwidth = [0.4, 0.1]
+        color = [colors.to_rgba('g', 0.4)]*6
 
         table = ax.table(cellText = values, colLabels = title, rowLabels = labels, colColours = color, rowColours = color, rowLoc = loc, cellLoc = loc, loc = 9, colWidths = colwidth)
-        table.set_fontsize(22)
-        table.scale(1.5, 3)
+        table.set_fontsize(16)
+        table.scale(1.25, 3.25)
     
     
     # Arrange sky grid
@@ -87,7 +91,6 @@ class Plot:
         start_freq = self.freqs[0]
         stop_freq = self.freqs[-1]
         SNR, doppler = self.SNR_and_doppler()
-        # obj_vel = round(self.galactic_velocity - doppler, 1)
 
         ax.plot(self.freqs, self.data, color = 'g', label = 'Observed data')
 
@@ -109,9 +112,8 @@ class Plot:
             ax.set(ylim = [low_y, high_y])
 
         # Adds top x-axis for doppler
-        # TODO Correct doppler from galactical coordinates
         doppler = ax.secondary_xaxis('top', functions =(self.doppler_from_freq, self.freq_from_doppler))
-        doppler.set_xlabel(r'Relative doppler / $\frac{km}{s}$')
+        doppler.set_xlabel(r'Observed doppler / $\frac{km}{s}$')
 
 
     # Returns highest SNR and doppler of the highest peak
@@ -141,4 +143,3 @@ class Plot:
         diff_freq = doppler*self.H_FREQUENCY/self.c_speed
         freq = diff_freq+self.H_FREQUENCY
         return freq
-

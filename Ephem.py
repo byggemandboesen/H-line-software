@@ -13,6 +13,7 @@ class Coordinates:
         self.alt = alt
         self.az = az
     
+
     # Returns galactic coordinates
     def galactic(self):
         ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
@@ -20,6 +21,7 @@ class Coordinates:
         gal_lat, gal_lon = ephem.Galactic(eq_grid).lat / degree, ephem.Galactic(eq_grid).lon / degree
         return round(gal_lat, 1), round(gal_lon, 1)
     
+
     # Returns equatorial coordinates
     def equatorial(self, num, interval):
         ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
@@ -36,10 +38,9 @@ class Coordinates:
 
             return ra_list, round(dec / degree, 1)
 
-        
 
     # Calculates apparent velocity of galactic coordinate
-    def galactic_velocity(self, lat, lon):
+    def observer_velocity(self, lat, lon):
         orb_vel = 220 # km/s
         # Radian stuff
         lat = lat * np.pi / 180
