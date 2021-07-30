@@ -95,6 +95,20 @@ On Linux the same command would be:
 python3 H-line.py -n 50000 -c
 ~~~
 
+### Plot example with config
+When using the observer coordinates together with alt/az coordinates of the area observed the software will generate a plot showing the observed area in the Milky way, <br>
+together with other parameters such as source and observer velocity in the observed direction. The following is an example plot: <br>
+![Plot when using config](Spectrums/ra=304.3,dec=39.9.png)
+The command for the plot above: <br>
+Windows:
+~~~
+py H-line.py -c -n 50000 -r 12
+~~~
+Linux
+~~~
+python3 H-line.py -c -n 50000 -r 12
+~~~
+
 ## Using RTL-TCP
 RTL-TCP is supported through the pyrtlsdr package. This allows a device, with an RTL unit connected, to act as a host/server using the following command. <br>
 ~~~
