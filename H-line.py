@@ -125,10 +125,10 @@ def main(args):
 
 # Reads the config file and returns JSON graph
 def read_config():
-    path = './config.txt'
+    path = './config.json'
     config = open(path, 'r')
-    json_config = json.load(config)
-    return json_config
+    parsed_config = json.load(config)
+    return parsed_config
 
 def clear_console():
     os.system('cls' if os.name =='nt' else 'clear')
