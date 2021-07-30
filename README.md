@@ -66,9 +66,9 @@ optional arguments:
   -a Altitude           The elevation of the pointing direction
   -c                    Use lat, lon of QTH and antenna alt/az from config file
 ~~~
-The latitude, longitude, azimuth and altitude can also be modified in the "config.txt" and used by using the console argument "-c". This will then save you some time from writing latitude & longitude. Keep in mind the azimuth ranges from zero to positive 180 degrees and then goes straight to -180 to 0. This means an azimuth of 270 degrees will be -90 degrees. <br>
+The latitude, longitude, azimuth and altitude can also be modified in the "config.json" and used by using the console argument "-c". This will then save you some time from writing latitude & longitude. Keep in mind the azimuth ranges from zero to positive 180 degrees and then goes straight to -180 to 0. This means an azimuth of 270 degrees will be -90 degrees. <br>
 If one is located in noisy conditions a resolution at around 9-10 may result in a cleaner spectrum and to increase detail a higher number of FFT's should be taken. Interference can also be dealt with by smoothing the data with a median filter using "-m X". This will compute the median for each point from X points besides it. An isolated interference spike will therefor be less powerful.
-To disable the autoscaling in the plots, you can set your own y-axis interval in the config.txt to for example, low_y = -1 & high_y = 1. An example of this is shown under examples.
+To disable the autoscaling in the plots, you can set your own y-axis interval in the config.json to for example, low_y = -1 & high_y = 1. An example of this is shown under examples.
 
 ## Examples
 the following GIf consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>
