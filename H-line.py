@@ -52,17 +52,19 @@ def main(args):
         TCP_class.rtltcphost()
         quit()
 
-    # Get y-axis limits from config
-    low_y, high_y = config['low_y'], config['high_y']
 
     # Get current observer location and antenna pointing direction
     if args.use_config:
         lat, lon = config['latitude'], config['longitude']
         alt, az = config['altitude'], config['azimuth']
+        
+        # Get y-axis limits from config
+        low_y, high_y = config['low_y'], config['high_y']
         if "none" in (lat, lon, alt, az):
             print('Please check your config file or use command line arguments.')
             quit()
     else:
+        low_y, high_y = 'none', 'none'
         lat, lon = args.latitude, args.longitude
         alt, az = args.altitude, args.azimuth
 
@@ -118,6 +120,10 @@ def main(args):
                 print(f'Waiting for next data collection in {time_remaining.total_seconds()} seconds')
                 sleep(time_remaining.total_seconds())
 
+        # Generate GIF from observations
+        if num_data != 0:
+            Plot_class.generate_GIF(ra, dec)
+
     else:
         print('360 must be divisable with the degree interval. Eg. the quotient must be a positive natural number (1, 2, 3, and not 3.4)')
         quit()
@@ -125,10 +131,10 @@ def main(args):
 
 # Reads the config file and returns JSON graph
 def read_config():
-    path = './config.json'
+    path = './config.txt'
     config = open(path, 'r')
-    parsed_config = json.load(config)
-    return parsed_config
+    json_config = json.load(config)
+    return json_config
 
 def clear_console():
     os.system('cls' if os.name =='nt' else 'clear')

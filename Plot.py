@@ -1,7 +1,8 @@
+import imageio
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import colors
 from datetime import datetime
+from matplotlib import colors
+import matplotlib.pyplot as plt
 
 class Plot:
 
@@ -110,6 +111,8 @@ class Plot:
         # Adds y-axis interval if supplied in config.txt
         if not "none" in (low_y, high_y):
             ax.set(ylim = [low_y, high_y])
+        else:
+            ax.autoscale(enable = True, axis = 'y')
 
         # Adds top x-axis for doppler
         doppler = ax.secondary_xaxis('top', functions =(self.doppler_from_freq, self.freq_from_doppler))
@@ -143,3 +146,11 @@ class Plot:
         diff_freq = doppler*self.H_FREQUENCY/self.c_speed
         freq = diff_freq+self.H_FREQUENCY
         return freq
+
+
+    # Generates and saves a GIF of 24H observations
+    def generate_GIF(self, ra, dec):
+        print('Generating GIF from observations... This may take a while')
+        path = f'Spectrums/ra={ra[0]},dec={dec}.gif'
+        images = [imageio.imread(f'Spectrums/ra={coord},dec={dec}.png') for coord in ra]
+        imageio.mimsave(path, images)
