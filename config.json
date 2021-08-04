@@ -1,8 +1,8 @@
 {
-    "latitude": 55.7,
-    "longitude": 12.3,
-    "azimuth": -55,
-    "altitude": 75,
+    "latitude": "none",
+    "longitude": "none",
+    "azimuth": "none",
+    "altitude": "none",
     "low_y": "none",
     "high_y": "none"
 }
