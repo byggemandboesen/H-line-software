@@ -18,6 +18,7 @@ pip install matplotlib
 pip install numpy
 pip install pyrtlsdr
 pip install pyephem
+pip install imageio
 ~~~
 One can also install the required packages from the "requirements.txt":
 ~~~

@@ -91,7 +91,7 @@ def main(args):
         
 
         # Loop for 24 hours or only once if -i is not used
-        for i in range(num_data + 1):
+        for i in range(num_data):
             
             # Receives and writes data - either through RTLTCP or locally
             print(f'Receiving {args.num_FFT} bins of {2 ** args.resolution} samples each...')
