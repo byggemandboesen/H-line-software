@@ -2,3 +2,4 @@ matplotlib==3.4.2
 numpy==1.21.1
 pyephem==9.99
 pyrtlsdr==0.2.92
+imageio==2.9.0
