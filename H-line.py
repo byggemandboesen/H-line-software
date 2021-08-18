@@ -44,20 +44,18 @@ def parser():
 # Main method
 def main(args):
 
-    config = read_config()
-
     # Does user want this device to act as RTL-TCP host? If yes - start host
     if args.host:
         TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
         TCP_class.rtltcphost()
         quit()
 
-
     # Get current observer location and antenna pointing direction
     if args.use_config:
+        config = read_config()
         lat, lon = config['latitude'], config['longitude']
         alt, az = config['altitude'], config['azimuth']
-        
+
         # Get y-axis limits from config
         low_y, high_y = config['low_y'], config['high_y']
         if "none" in (lat, lon, alt, az):
@@ -73,7 +71,6 @@ def main(args):
     second_interval = 24*60**2/num_data if num_data > 0 else None
 
     if float(num_data).is_integer():
-
         # Set coordinates for each observation if possible
         if 0.0 == lat == lon == alt == az:
             ra, dec = 'none', 'none'
@@ -84,34 +81,21 @@ def main(args):
             ra, dec = Coordinates_class.equatorial(num_data, args.interval)
             gal_lat, gal_lon = Coordinates_class.galactic()
             observer_velocity = Coordinates_class.observer_velocity(gal_lat, gal_lon)
-
+        
         # Current time of first data collection
         current_time = datetime.utcnow()
         num_data = int(num_data)
         
-
-        # Loop for 24 hours or only once if -i is not used
-        for i in range(num_data):
-            
-            # Receives and writes data - either through RTLTCP or locally
-            print(f'Receiving {args.num_FFT} bins of {2 ** args.resolution} samples each...')
-            
-            # Disable console printouts due to pyrtlsdr printing repeating message when using RTL-TCP
-            with contextlib.redirect_stdout(None):
-                if args.remote_ip != 'none':
-                    TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
-                    freqs, data = TCP_class.rtltcpclient(args.remote_ip)
-                else:
-                    Receiver_class = Receiver(TCP = False, client = 0, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
-                    freqs, data = Receiver_class.receive()
-
-            # Plots data
-            print('Plotting data...')
-            Plot_class = Plot(freqs = freqs, data = data, observer_velocity = observer_velocity)
-            if num_data == 0:
-                Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
-            else:
-                Plot_class.plot(ra = ra[i], dec = dec, low_y = low_y, high_y = high_y)
+        # Check if one or multiple observations are planned
+        if num_data == 0:
+            # Perform only ONE observation
+            freqs, data = observe(args)
+            plot(freqs, data, ra, dec, low_y, high_y, observer_velocity)
+        else:
+            # Perform multiple observations for 24 hours
+            for i in range (num_data):
+                freqs, data = observe(args)
+                plot(freqs, data, ra[i], dec, low_y, high_y, observer_velocity)
 
                 # Wait for next execution
                 clear_console()
@@ -119,19 +103,41 @@ def main(args):
                 time_remaining = end_time - datetime.utcnow()
                 print(f'Waiting for next data collection in {time_remaining.total_seconds()} seconds')
                 sleep(time_remaining.total_seconds())
-
-        # Generate GIF from observations
-        if num_data != 0:
-            Plot_class.generate_GIF(ra, dec)
-
+            
+            # Generate GIF from observations
+            Plot_class = Plot(freqs = freqs, data = data, observer_velocity = observer_velocity)
+            Plot_class.generate_GIF(ra[0], dec)
+            
     else:
         print('360 must be divisable with the degree interval. Eg. the quotient must be a positive natural number (1, 2, 3, and not 3.4)')
         quit()
 
 
+# Performs observation
+def observe(args):
+    # Receives and writes data - either through RTLTCP or locally
+    print(f'Receiving {args.num_FFT} bins of {2 ** args.resolution} samples each...')
+    
+    # Disable console printouts due to pyrtlsdr printing repeating message when using RTL-TCP
+    with contextlib.redirect_stdout(None):
+        if args.remote_ip != 'none':
+            TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
+            return TCP_class.rtltcpclient(args.remote_ip)
+        else:
+            Receiver_class = Receiver(TCP = False, client = 0, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
+            return Receiver_class.receive()
+
+
+# Plots data
+def plot(freqs, data, ra, dec, low_y, high_y, observer_velocity):
+    print('Plotting data...')
+    Plot_class = Plot(freqs = freqs, data = data, observer_velocity = observer_velocity)
+    Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
+
+
 # Reads the config file and returns JSON graph
 def read_config():
-    path = './config.json'
+    path = 'config.json'
     config = open(path, 'r')
     parsed_config = json.load(config)
     return parsed_config

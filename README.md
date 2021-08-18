@@ -137,7 +137,7 @@ I really appreciate his work for the amateur radio astronomy community!
 
 ## TODO
 * Direct bias-t interaction
-* *Stream data to live plot*
+* Fix incosistent spectrum size when y-axis autoscales
 * ~~Calculate Earth's velocity towards observed area from galactic/equatorial coordinates~~
 * ~~Redesign plot with small Milky way map and observed point~~
 * ~~RFI removal~~
