@@ -61,6 +61,7 @@ optional arguments:
   -m Median smoothing   Number of data-points to compute median from. Smooths data and compresses noise
   -t                    Run RTL-TCP host for streaming to client
   -e RTL-TCP streaming  Stream from IP of remote server. This command is used for client side.
+  -d                    Debug data
   -l Latitude           The latitude of the antenna's position as a float, north is positive
   -g Longitude          The longitude of the antenna's position as a float, east is positive
   -z Azimuth            The azimuth of the poting direction
@@ -126,6 +127,28 @@ server = RtlSdrTcpServer(hostname = local_ip, port = 5050)
 server = RtlSdrTcpServer(hostname = '127.0.0.1', port = 5050)
 ~~~
 Note, using RTL-TCP may be significantly slower than running everything locally depending on wifi/internet speeds.
+
+## Debugging data
+As a new addition, the user can now debug their data using the "-d" command line option. This writes a json file with all the parameters and data from the observation.
+~~~json
+{
+  "Parameters": {
+    "sample_rate": 2400000,
+    "ppm": 0,
+    "resolution": 11,
+    "num_FFT": 1000,
+    "num_med": 3
+  },
+  "Data": {
+    "Freqs": "List with frequencies",
+    "Data": "List with PF/PSD data"
+  }
+}
+~~~
+Above is an example of what a debug file might look like using the defult parameters, eg. the following command:
+~~~bash
+py H-line.py -d
+~~~
 
 ## Using this with E4000 tuners
 Since the intention of this software is to motivate amateurs to give radio astronomy a try the versatility of the software is limited to the packages available. The RTL2832U tuner is well supported by the pyrtlsdr package Although it does lack certain features like offset tuning, which results in degraded performance for E4000 tuner SDR's like the Nooelec Smart XTR for example. <br>

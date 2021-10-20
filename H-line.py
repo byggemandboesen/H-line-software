@@ -27,6 +27,7 @@ def parser():
     parser.add_argument('-m', metavar = 'Median smoothing', type = int, help = 'Number of data-points to compute median from. Smooths data and compresses noise', default = 3, dest = 'num_med')
     parser.add_argument('-t', help = 'Run RTL-TCP host for streaming to client', action = 'store_true', dest = 'host')
     parser.add_argument('-e', metavar = 'RTL-TCP streaming', type = str, help = 'Stream from IP of remote server. This command is used for client side.', default = 'none', dest = 'remote_ip')
+    parser.add_argument('-d', help = 'Debug data', action = 'store_true', dest = 'debug')
 
     # Parsing options (observer)
     parser.add_argument('-l', metavar = 'Latitude', type = float, help = 'The latitude of the antenna\'s position as a float, north is positive', default = 0.0, dest = 'latitude')
@@ -90,6 +91,8 @@ def main(args):
         if num_data == 0:
             # Perform only ONE observation
             freqs, data = observe(args)
+            if args.debug:
+                write_debug(freqs, data, args, ra, dec)
             plot(freqs, data, ra, dec, low_y, high_y, observer_velocity)
         else:
             # Perform multiple observations for 24 hours
@@ -134,6 +137,28 @@ def plot(freqs, data, ra, dec, low_y, high_y, observer_velocity):
     Plot_class = Plot(freqs = freqs, data = data, observer_velocity = observer_velocity)
     Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
 
+# Write debug file
+def write_debug(freqs, data, args, ra, dec):
+    parameters = {
+        "sample_rate": args.sample_rate,
+        "ppm": args.ppm,
+        "resolution": args.resolution,
+        "num_FFT": args.num_FFT,
+        "num_med": args.num_med
+    }
+    data = {
+        "Freqs": freqs.tolist(),
+        "Data": data.tolist()
+    }
+    json_file = {"Parameters": parameters, "Data": data}
+
+    if "none" in (ra, dec):
+        stamp = datetime.utcnow().strftime('D%m%d%YT%H%M%S')
+    else:
+        stamp = f'ra={ra},dec={dec}'
+
+    with open(f"Spectrums/debug({stamp}).json", "w") as file:
+        json.dump(json_file, file, indent = 4)
 
 # Reads the config file and returns JSON graph
 def read_config():
