@@ -114,5 +114,3 @@ class Receiver:
             return PSD
         except:
             return PSD
-
-

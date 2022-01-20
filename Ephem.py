@@ -47,7 +47,10 @@ class Coordinates:
         lon = lon * np.pi / 180
 
         # We determine the angle bewteen Earth's velocity-vector and a unit-vector to the galactic coordinate
-        obj_vec = np.array([1 * np.cos(lon) * np.cos(lat), 1 * np.sin(lon) * np.cos(lat), 1 * np.sin(lat)])
+        obj_vec = np.array(
+            [1 * np.cos(lon) * np.cos(lat),
+            1 * np.sin(lon) * np.cos(lat),
+            1 * np.sin(lat)])
         sun_vec = np.array([0, orb_vel, 0])
 
         dot_prod = np.dot(obj_vec, sun_vec)
