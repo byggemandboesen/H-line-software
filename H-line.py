@@ -1,10 +1,13 @@
 import os
+import sys
 import json
 import argparse
 import contextlib
 from time import sleep
 from datetime import datetime, timedelta
 
+# Due to Receive.py not wanting to be importet we add src to path
+sys.path.append("src/")
 from Rtltcp import RTLTCP
 from Receive import Receiver
 from Plot import Plot
@@ -138,6 +141,7 @@ def plot(freqs, data, ra, dec, low_y, high_y, observer_velocity):
     Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
 
 # Write debug file
+# TODO Add raw data in this file as well
 def write_debug(freqs, data, args, ra, dec):
     parameters = {
         "sample_rate": args.sample_rate,

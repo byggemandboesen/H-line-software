@@ -159,9 +159,7 @@ I would like to thank [0xCoto](https://github.com/0xCoto) AKA "Apostolos" for le
 I really appreciate his work for the amateur radio astronomy community!
 
 ## TODO
+* Complete re-write to improve code structure
+* Create optional UI for easier use
 * Direct bias-t interaction
 * Fix incosistent spectrum size when y-axis autoscales
-* ~~Calculate Earth's velocity towards observed area from galactic/equatorial coordinates~~
-* ~~Redesign plot with small Milky way map and observed point~~
-* ~~RFI removal~~
-* ~~Installation on Linux~~
