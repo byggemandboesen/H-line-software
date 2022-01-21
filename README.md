@@ -14,11 +14,7 @@ git clone https://github.com/byggemandboesen/H-line-software.git
 ~~~
 Some packages are required which can be downloaded with pip:
 ~~~
-pip install matplotlib
-pip install numpy
-pip install pyrtlsdr
-pip install pyephem
-pip install imageio
+pip install matplotlib, numpy, pyephem, pyrtlsdr, imageio, kivymd, pyperclip
 ~~~
 One can also install the required packages from the "requirements.txt":
 ~~~
@@ -71,6 +67,16 @@ optional arguments:
 The latitude, longitude, azimuth and altitude can also be modified in the "config.json" and used by using the console argument "-c". This will then save you some time from writing latitude & longitude. Keep in mind the azimuth ranges from zero to positive 180 degrees and then goes straight to -180 to 0. This means an azimuth of 270 degrees will be -90 degrees. <br>
 If one is located in noisy conditions a resolution at around 9-10 may result in a cleaner spectrum and to increase detail a higher number of FFT's should be taken. Interference can also be dealt with by smoothing the data with a median filter using "-m X". This will compute the median for each point from X points besides it. An isolated interference spike will therefor be less powerful.
 To disable the autoscaling in the plots, you can set your own y-axis interval in the config.json to for example, low_y = -1 & high_y = 1. An example of this is shown under examples.
+
+### Optional UI
+To simplify usage even more and avoid manually typing command line arguments an optional UI is available.<br>
+This is available through the following command:
+```bash
+py ui.py
+```
+![The optional user interface](Spectrums/UI.jpg)
+
+**NOTE!** It's a brand new feature and will likely change in the near future when doing a rewrite of the software structure at some point. However, for now it supports the majority of features except manually setting plotting y-axis interval, although I'll be working on adding that.
 
 ## Examples
 the following GIf consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>

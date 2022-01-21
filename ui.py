@@ -8,7 +8,7 @@ from kivy.core.window import Window
 from kivy.lang.builder import Builder
 
 
-class PyLineSDR(MDApp):
+class HLineSDR(MDApp):
     def build(self):
         self.host = False
         self.client = False
@@ -69,4 +69,4 @@ class PyLineSDR(MDApp):
         os.system(self.root.ids.command.text)
 
 if __name__ == "__main__":
-    PyLineSDR().run()
+    HLineSDR().run()
