@@ -12,7 +12,7 @@ Widget:
             padding: 10
             elevation: 10
             size_hint: None, None
-            size: root.width * 0.48, root.height * 0.4
+            size: root.width * 0.48, root.height * 0.5
             pos_hint: {"center_x": .5, "center_y": .5}
 
             MDLabel:
@@ -27,7 +27,7 @@ Widget:
             GridLayout:
                 cols: 2
                 row_force_default: True
-                row_default_height: root.height * 0.08
+                row_default_height: root.height * 0.1
                 size_hint: 0.8, 1
 
                 MDLabel:
@@ -59,7 +59,7 @@ Widget:
                     font_size: 18
                 
                 MDTextField:
-                    id: samples
+                    id: fft_num
                     hint_text: "Default = 1000"
                 
         
@@ -68,7 +68,7 @@ Widget:
             padding: 10
             elevation: 10
             size_hint: None, None
-            size: root.width * 0.48, root.height * 0.4
+            size: root.width * 0.48, root.height * 0.5
             pos_hint: {"center_x": .5, "center_y": .5}
 
             MDLabel:
@@ -83,7 +83,7 @@ Widget:
             GridLayout:
                 cols: 2
                 row_force_default: True
-                row_default_height: root.height * 0.08
+                row_default_height: root.height * 0.1
                 size_hint: 0.8, 1
 
                 MDLabel:
@@ -99,7 +99,7 @@ Widget:
                     font_size: 18
                 
                 MDTextField:
-                    id: fft_res
+                    id: longitude
                     hint_text: "Default = 0"
                 
                 MDLabel:
@@ -123,7 +123,7 @@ Widget:
             padding: 10
             elevation: 10
             size_hint: None, None
-            size: root.width * 0.48, root.height * 0.25
+            size: root.width * 0.48, root.height * 0.28
             pos_hint: {"center_x": .5, "center_y": .5}
 
             MDLabel:
@@ -138,7 +138,7 @@ Widget:
             GridLayout:
                 cols: 3
                 row_force_default: True
-                row_default_height: root.height * 0.08
+                row_default_height: root.height * 0.1
                 size_hint: 0.8, 1
 
                 MDLabel:
@@ -147,6 +147,7 @@ Widget:
                 
                 MDCheckbox:
                     id: host
+                    on_active: app.checkboxChecked(self, "host", self.active)
                 
                 Widget:
                     hint_size: 1, None
@@ -157,6 +158,7 @@ Widget:
                 
                 MDCheckbox:
                     id: client
+                    on_active: app.checkboxChecked(self, "client", self.active)
                 
                 MDTextField:
                     id: client_ip
@@ -167,7 +169,7 @@ Widget:
             padding: 10
             elevation: 10
             size_hint: None, None
-            size: root.width * 0.48, root.height * 0.25
+            size: root.width * 0.48, root.height * 0.28
             pos_hint: {"center_x": .5, "center_y": .5}
 
             MDLabel:
@@ -182,7 +184,7 @@ Widget:
             GridLayout:
                 cols: 2
                 row_force_default: True
-                row_default_height: root.height * 0.08
+                row_default_height: root.height * 0.1
                 size_hint: 0.8, 1
 
                 MDLabel:
@@ -190,7 +192,7 @@ Widget:
                     font_size: 18
                 
                 MDTextField:
-                    id: median_smoothing
+                    id: median
                     hint_text: "Default = 3"
                 
                 MDLabel:
@@ -211,20 +213,34 @@ Widget:
         width: root.width
         padding: 15
         spacing: 15
-
-        MDFillRoundFlatButton:
-            text: "[color=#000000]Get command[/color]"
-            md_bg_color: 0, 0.5, 0, 1
         
-        Widget:
-            width: root.width
-            
-        MDTextField:
-            id: command
-            size_hint: None, 1
-            width: root.width * 0.6
-            text: "No command yet"
+        MDCard:
+            orientation: "horizontal"
+            size_hint: 1, 0.8
+            size: root.size
+            pos_hint: {"center_x": 0.5}
+            spacing: 15
+            padding: 15
 
-        MDFillRoundFlatButton:
-            text: "[color=#000000]RUN[/color]"
-            md_bg_color: 0, 0.5, 0, 1
+            MDFillRoundFlatButton:
+                text: "[color=#000000]Get command[/color]"
+                md_bg_color: 0, 0.5, 0, 1
+                pos_hint: {"center_y": 0.5}
+                on_release: app.getCommand()
+                
+            MDLabel:
+                id: command
+                italic: True
+                text: "No command yet"
+                font_size: 16
+
+            MDIconButton:
+                icon: "content-copy"
+                pos_hint: {"center_y": 0.5}
+                on_release: app.copyCommand()
+
+            MDFillRoundFlatButton:
+                text: "[color=#000000]RUN[/color]"
+                md_bg_color: 0, 0.5, 0, 1
+                pos_hint: {"center_y": 0.5}
+                on_release: app.runObservation()
