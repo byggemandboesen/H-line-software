@@ -23,6 +23,10 @@ class PyLineSDR(MDApp):
             self.host = value
         elif label == "client":
             self.client = value
+        
+        # Check if both host and client is checked. If so, alert user
+        if self.host and self.client:
+            print("Please deselect either host or client!! Both can't be enabled at the same time")
     
     # Generate a command from the supplied parameters
     def getCommand(self):
@@ -46,7 +50,7 @@ class PyLineSDR(MDApp):
         if self.client is True:
             command = f"{command_prefix} -s {self.sample_rate} -r {self.fft_res} -n {self.fft_num} -l {self.latitude} -g {self.longitude} -z {self.azimuth} -a {self.altitude} -e {self.client_ip} -m {self.median} -i {self.degree_interval}"
         elif self.host is True:
-            command = f"{command_prefix} -s {self.sample_rate} -r {self.fft_res} -n {self.fft_num} -l {self.latitude} -g {self.longitude} -z {self.azimuth} -a {self.altitude} -t -m {self.median} -i {self.degree_interval}"
+            command = f"{command_prefix} -t"
         else:
             command = f"{command_prefix} -s {self.sample_rate} -r {self.fft_res} -n {self.fft_num} -l {self.latitude} -g {self.longitude} -z {self.azimuth} -a {self.altitude} -m {self.median} -i {self.degree_interval}"
 
@@ -54,11 +58,13 @@ class PyLineSDR(MDApp):
         self.root.ids.command.text = command
     
     def copyCommand(self):
+        self.getCommand()
         command = self.root.ids.command.text
         pyperclip.copy(command)
         print(f"Command copied! {command}")
     
     def runObservation(self):
+        self.getCommand()
         print("Starting observation!")
         os.system(self.root.ids.command.text)
 
