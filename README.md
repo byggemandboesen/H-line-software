@@ -77,7 +77,15 @@ py ui.py
 ![The optional user interface](Spectrums/UI.jpg)
 
 **NOTE!** It's a brand new feature and will likely change in the near future when doing a rewrite of the software structure at some point. However, for now it supports the majority of features except manually setting plotting y-axis interval, although I'll be working on adding that.<br>
-The UI is made with the [kivymd](https://github.com/kivymd/KivyMD) language for python.
+The UI is made with the [kivymd](https://github.com/kivymd/KivyMD) language for python.<br>
+You also may experience problems running the UI with an error, `Unable to get a window, abort`. Please try to run the UI from a virtual machine:
+```bash
+pip install virtualenv
+python -m virtualenv venv
+source venv/Scripts/activate
+pip install -r requirements.txt
+```
+Also note you will need python 3.8 or older for this.
 
 ## Examples
 the following GIf consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>
