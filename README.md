@@ -76,7 +76,8 @@ py ui.py
 ```
 ![The optional user interface](Spectrums/UI.jpg)
 
-**NOTE!** It's a brand new feature and will likely change in the near future when doing a rewrite of the software structure at some point. However, for now it supports the majority of features except manually setting plotting y-axis interval, although I'll be working on adding that.
+**NOTE!** It's a brand new feature and will likely change in the near future when doing a rewrite of the software structure at some point. However, for now it supports the majority of features except manually setting plotting y-axis interval, although I'll be working on adding that.<br>
+The UI is made with the [kivymd](https://github.com/kivymd/KivyMD) language for python.
 
 ## Examples
 the following GIf consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>
