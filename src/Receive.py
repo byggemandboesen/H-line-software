@@ -54,6 +54,7 @@ class Receiver:
         blank_PSD = self.sample()
         SNR_spectrum = self.estimate_SNR(data = data_PSD, blank = blank_PSD, freqs = freqs)
         SNR_median = self.median(SNR_spectrum) if self.num_med != 0 else SNR_spectrum
+        SNR_median = self.correct_Slant(SNR_median)
 
         # Close the SDR
         self.sdr.close()
@@ -97,7 +98,15 @@ class Receiver:
 
         return shifted_SNR
 
-
+    
+    # Correct for slanted data
+    def correct_Slant(self, data):
+        X = np.linspace(0,len(data) - 1, len(data))
+        slope, intersect = np.polyfit(X, data, 1)
+        data = [data[i] - (intersect + i * slope) for i in range(len(X))]
+        return data
+    
+    
     # Median filter for rfi-removal
     def median(self, data):
         for i in range(len(data)):
