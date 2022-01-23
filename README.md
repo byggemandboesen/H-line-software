@@ -80,7 +80,7 @@ py ui.py
 The UI is made with the [kivymd](https://github.com/kivymd/KivyMD) language for python.<br>
 
 #### Error when using UI on Raspberry Pi
-You may experience an error similar to , `Unable to get a window, abort` on a Raspberry pi. Please get the following commands:
+You may experience an error similar to , `Unable to get a window, abort` on a Raspberry pi. Please get the following packages:
 ```bash
 sudo apt-get install libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0
 ```
