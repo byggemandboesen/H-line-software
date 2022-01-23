@@ -79,7 +79,7 @@ py ui.py
 **NOTE!** It's a brand new feature and will likely change in the near future when doing a rewrite of the software structure at some point. However, for now it supports the majority of features except manually setting plotting y-axis interval, although I'll be working on adding that.<br>
 The UI is made with the [kivymd](https://github.com/kivymd/KivyMD) language for python.<br>
 
-#### Error when using UI
+#### Error when using UI on Raspberry Pi
 You may experience an error similar to , `Unable to get a window, abort` on a Raspberry pi. Please get the following commands:
 ```bash
 sudo apt-get install libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0
