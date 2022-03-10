@@ -150,9 +150,11 @@ def write_debug(freqs, data, args, ra, dec):
         "num_FFT": args.num_FFT,
         "num_med": args.num_med
     }
+    if not isinstance(data, list):
+        data = data.tolist()
     data = {
         "Freqs": freqs.tolist(),
-        "Data": data.tolist()
+        "Data": data
     }
     json_file = {"Parameters": parameters, "Data": data}
 
