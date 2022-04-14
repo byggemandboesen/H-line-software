@@ -1,8 +1,30 @@
 {
-    "latitude": "none",
-    "longitude": "none",
-    "azimuth": "none",
-    "altitude": "none",
-    "low_y": "none",
-    "high_y": "none"
+    "SDR": {
+        "sample_rate": 2400000,
+        "PPM_offset": 0,
+        "TCP_host": false,
+        "connect_to_host": false,
+        "host_IP": "127.0.0.1"
+    },
+    "DSP": {
+        "number_of_fft": 10000,
+        "resolution": 11,
+        "median": 5
+    },
+    "observer": {
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "azimuth": 0.0,
+        "altitude": 0.0
+    },
+    "plotting": {
+        "plot_map": false,
+        "y_min": 0.0,
+        "y_max": 0.0
+    },
+    "observation": {
+        "24h": false,
+        "degree_interval": 5.0,
+        "debug": false
+    }
 }

@@ -1,79 +1,100 @@
-import os
-import sys
-import json
-import argparse
-import contextlib
+import os, sys, json, contextlib
 from time import sleep
 from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
 
 # Due to Receive.py not wanting to be importet we add src to path
 sys.path.append("src/")
-from Rtltcp import RTLTCP
-from Receive import Receiver
-from Plot import Plot
+from rtl import RTL
+from plot import Plotter
 from Ephem import Coordinates
+from dsp import DSP
 
 
-# Reads user parameters
-def parser():
-    parser = argparse.ArgumentParser(
-        prog = 'H-line-observer',
-        description = 'An interface to receive H-line data'
-    )
-
-    # Parsing options (receiver)
-    parser.add_argument('-s', metavar = 'Sample rate', type = int, help = 'Tuner sample rate', default = 2400000, dest = 'sample_rate')
-    parser.add_argument('-o', metavar = 'PPM offset', type = int, help = 'Set custom tuner offset PPM', default = 0, dest = 'ppm')
-    parser.add_argument('-r', metavar = 'Resolution', type = int, help = 'Amount of samples = 2 raised to the power of the input', default = 11, dest = 'resolution')
-    parser.add_argument('-n', metavar = 'Number of FFT\'s', type = int, help = 'Number of FFT\'s to be collected and averaged', default = 1000, dest = 'num_FFT')
-    parser.add_argument('-i', metavar = 'Degree interval', type = float, help = 'Degree interval of each data-collection. Collects data for 24h.', default = 0.0, dest = 'interval')
-    parser.add_argument('-m', metavar = 'Median smoothing', type = int, help = 'Number of data-points to compute median from. Smooths data and compresses noise', default = 3, dest = 'num_med')
-    parser.add_argument('-t', help = 'Run RTL-TCP host for streaming to client', action = 'store_true', dest = 'host')
-    parser.add_argument('-e', metavar = 'RTL-TCP streaming', type = str, help = 'Stream from IP of remote server. This command is used for client side.', default = 'none', dest = 'remote_ip')
-    parser.add_argument('-d', help = 'Debug data', action = 'store_true', dest = 'debug')
-
-    # Parsing options (observer)
-    parser.add_argument('-l', metavar = 'Latitude', type = float, help = 'The latitude of the antenna\'s position as a float, north is positive', default = 0.0, dest = 'latitude')
-    parser.add_argument('-g', metavar = 'Longitude', type = float, help = 'The longitude of the antenna\'s position as a float, east is positive', default = 0.0, dest = 'longitude')
-    parser.add_argument('-z', metavar = 'Azimuth', type = float, help = 'The azimuth of the poting direction', default = 0.0, dest = 'azimuth')
-    parser.add_argument('-a', metavar = 'Altitude', type = float, help = 'The elevation of the pointing direction', default = 0.0, dest = 'altitude')
-    parser.add_argument('-c', help = 'Use lat, lon of QTH and antenna alt/az from config file', action = 'store_true', dest = 'use_config')
-    parser.set_defaults(use_config = False)
-    
-    args = parser.parse_args()
-
-    main(args)
+# Reads user config
+def read_config():
+    path = 'config.json'
+    config = open(path, 'r')
+    parsed_config = json.load(config)
+    main(parsed_config)
 
 
 # Main method
-def main(args):
+def main(config):
+    SDR_PARAM = config["SDR"]
+    DSP_PARAM = config["DSP"]
+    OBSERVER_PARAM = config["observer"]
+    PLOTTING_PARAM = config["plotting"]
+    OBSERVATION_PARAM = config["observation"]
 
+    # Define some classes:
+    RTL_CLASS = RTL(**SDR_PARAM)
+    DSP_CLASS = DSP(**DSP_PARAM)
+    
     # Does user want this device to act as RTL-TCP host? If yes - start host
-    if args.host:
-        TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
-        TCP_class.rtltcphost()
+    if SDR_PARAM["TCP_host"]:
+        RTL_CLASS.tcpHost()
         quit()
-
-    # Get current observer location and antenna pointing direction
-    if args.use_config:
-        config = read_config()
-        lat, lon = config['latitude'], config['longitude']
-        alt, az = config['altitude'], config['azimuth']
-
-        # Get y-axis limits from config
-        low_y, high_y = config['low_y'], config['high_y']
-        if "none" in (lat, lon, alt, az):
-            print('Please check your config file or use command line arguments.')
+    
+    # If user wants 24h observations
+    if OBSERVATION_PARAM["24h"]:
+        # Checks if 360 is divisable with the degree interval and calculates number of collections
+        try:
+            deg_interval = OBSERVATION_PARAM["degree_interval"]
+            num_data = int(360/deg_interval) if 360 % deg_interval == 0 else ValueError
+            second_interval = 24*60**2/num_data
+        except:
+            print("Degree interval not divisable with 360 degrees")
             quit()
     else:
-        low_y, high_y = 'none', 'none'
-        lat, lon = args.latitude, args.longitude
-        alt, az = args.altitude, args.azimuth
+        num_data = 1
 
-    # Checks if 360 is divisable with the degree interval and calculates number of collections
-    num_data = 360/args.interval if args.interval != 0 else 0
-    second_interval = 24*60**2/num_data if num_data > 0 else None
+    # Get information from config if necessary (when plot map is checked)
+    if PLOTTING_PARAM["plot_map"]:
+        lat, lon = OBSERVER_PARAM['latitude'], OBSERVER_PARAM['longitude']
+        alt, az = OBSERVER_PARAM['altitude'], OBSERVER_PARAM['azimuth']
+        OBSERVER = Coordinates(lat, lon, alt, az)
+        
+        # Get ra/dec and etc for observer
+        ra, dec = OBSERVER.equatorial()
+        gal_lat, gal_lon = OBSERVER.galactic()
+        observer_velocity = OBSERVER.observer_velocity(gal_lat, gal_lon)
 
+        # Now, get list of RA coordinates for each observation:
+        if OBSERVATION_PARAM["24h"]:
+            ra_list = [ra]
+            # We don't want the RA > 360 hence the if statements below
+            for i in range(1, int(num_data)):
+                ra_list.append(round(ra_list[i-1] + deg_interval if ra_list[i-1] + deg_interval <= 360.0 else deg_interval - (360.0 - ra_list[i-1]), 1))
+    
+    # Get SDR
+    if SDR_PARAM["connect_to_host"]:
+        sdr = RTL_CLASS.rtlTcpClient()
+    else:
+        sdr = RTL_CLASS.rtlClient()
+    
+    # Perform observations
+    # TODO Basically allow for the bellow to happen with 24H observations
+    # current_time = datetime.utcnow()
+    freqs = DSP_CLASS.generateFreqs(sample_rate = SDR_PARAM["sample_rate"])
+    h_line_data = DSP_CLASS.sample(sdr)
+    
+    # Sample blank
+    sdr.center_freq += 3000000
+    blank_data = DSP_CLASS.sample(sdr)
+
+    SNR_spectrum, max_SNR = DSP_CLASS.computeSNR(freqs = freqs, h_line_data = h_line_data, blank_data = blank_data)
+    if DSP_PARAM["median"] != 0:
+        SNR_spectrum = DSP_CLASS.applyMedian(SNR_spectrum)
+    
+    plt.plot(SNR_spectrum)
+    plt.show()
+    # Now, plot the data
+    # PLOT_CLASS = Plotter(**PLOTTING_PARAM)
+    # TODO Plot that sheit!!
+
+
+'''
     if float(num_data).is_integer():
         # Set coordinates for each observation if possible
         if 0.0 == lat == lon == alt == az:
@@ -117,64 +138,37 @@ def main(args):
     else:
         print('360 must be divisable with the degree interval. Eg. the quotient must be a positive natural number (1, 2, 3, and not 3.4)')
         quit()
+'''
 
+# # Write debug file
+# # TODO Add raw data in this file as well
+# def write_debug(freqs, data, args, ra, dec):
+#     parameters = {
+#         "sample_rate": args.sample_rate,
+#         "ppm": args.ppm,
+#         "resolution": args.resolution,
+#         "num_FFT": args.num_FFT,
+#         "num_med": args.num_med
+#     }
+#     if not isinstance(data, list):
+#         data = data.tolist()
+#     data = {
+#         "Freqs": freqs.tolist(),
+#         "Data": data
+#     }
+#     json_file = {"Parameters": parameters, "Data": data}
 
-# Performs observation
-def observe(args):
-    # Receives and writes data - either through RTLTCP or locally
-    print(f'Receiving {args.num_FFT} bins of {2 ** args.resolution} samples each...')
-    
-    # Disable console printouts due to pyrtlsdr printing repeating message when using RTL-TCP
-    with contextlib.redirect_stdout(None):
-        if args.remote_ip != 'none':
-            TCP_class = RTLTCP(sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
-            return TCP_class.rtltcpclient(args.remote_ip)
-        else:
-            Receiver_class = Receiver(TCP = False, client = 0, sample_rate = args.sample_rate, ppm = args.ppm, resolution = args.resolution, num_FFT = args.num_FFT, num_med = args.num_med)
-            return Receiver_class.receive()
+#     if "none" in (ra, dec):
+#         stamp = datetime.utcnow().strftime('D%m%d%YT%H%M%S')
+#     else:
+#         stamp = f'ra={ra},dec={dec}'
 
+#     with open(f"Spectrums/debug({stamp}).json", "w") as file:
+#         json.dump(json_file, file, indent = 4)
 
-# Plots data
-def plot(freqs, data, ra, dec, low_y, high_y, observer_velocity):
-    print('Plotting data...')
-    Plot_class = Plot(freqs = freqs, data = data, observer_velocity = observer_velocity)
-    Plot_class.plot(ra = ra, dec = dec, low_y = low_y, high_y = high_y)
-
-# Write debug file
-# TODO Add raw data in this file as well
-def write_debug(freqs, data, args, ra, dec):
-    parameters = {
-        "sample_rate": args.sample_rate,
-        "ppm": args.ppm,
-        "resolution": args.resolution,
-        "num_FFT": args.num_FFT,
-        "num_med": args.num_med
-    }
-    if not isinstance(data, list):
-        data = data.tolist()
-    data = {
-        "Freqs": freqs.tolist(),
-        "Data": data
-    }
-    json_file = {"Parameters": parameters, "Data": data}
-
-    if "none" in (ra, dec):
-        stamp = datetime.utcnow().strftime('D%m%d%YT%H%M%S')
-    else:
-        stamp = f'ra={ra},dec={dec}'
-
-    with open(f"Spectrums/debug({stamp}).json", "w") as file:
-        json.dump(json_file, file, indent = 4)
-
-# Reads the config file and returns JSON graph
-def read_config():
-    path = 'config.json'
-    config = open(path, 'r')
-    parsed_config = json.load(config)
-    return parsed_config
 
 def clear_console():
     os.system('cls' if os.name =='nt' else 'clear')
 
 if __name__ == "__main__":
-    parser()
+    read_config()

@@ -23,20 +23,9 @@ class Coordinates:
     
 
     # Returns equatorial coordinates
-    def equatorial(self, num, interval):
+    def equatorial(self):
         ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
-
-        # Create list of RA coordinates for 24H observing feature
-        if interval == 0:
-            return round(ra / degree, 1), round(dec / degree, 1)
-        else:
-            ra_list = [round(ra / degree, 1)]
-
-            # We don't want the RA > 360 hence the if statements below
-            for i in range(1, int(num)):
-                ra_list.append(round(ra_list[i-1] + interval if ra_list[i-1] + interval <= 360.0 else interval - (360.0 - ra_list[i-1]), 1))
-
-            return ra_list, round(dec / degree, 1)
+        return round(ra / degree, 1), round(dec / degree, 1)
 
 
     # Calculates apparent velocity of galactic coordinate
