@@ -19,17 +19,17 @@ class Coordinates:
         ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
         eq_grid = ephem.Equatorial(ra, dec)
         gal_lat, gal_lon = ephem.Galactic(eq_grid).lat / degree, ephem.Galactic(eq_grid).lon / degree
-        return round(gal_lat, 1), round(gal_lon, 1)
+        return round(gal_lat, 2), round(gal_lon, 2)
     
 
     # Returns equatorial coordinates
     def equatorial(self):
         ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
-        return round(ra / degree, 1), round(dec / degree, 1)
+        return round(ra / degree, 2), round(dec / degree, 2)
 
 
     # Calculates apparent velocity of galactic coordinate
-    def observer_velocity(self, lat, lon):
+    def observerVelocity(self, lat, lon):
         orb_vel = 220 # km/s
         # Radian stuff
         lat = lat * np.pi / 180
@@ -47,4 +47,4 @@ class Coordinates:
         
         # Multiply solar system orbit velocity with cos to the angle to the object to find velocity component in that direction
         rel_vel = orb_vel * np.cos(angle)
-        return rel_vel
+        return np.round(rel_vel,2)

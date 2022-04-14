@@ -58,14 +58,15 @@ def read_from_config():
 #Callback functions
 # Handle button actions
 def btn_callback(sender, app_data, user_data):
-    if sender == "host_server":
-        # TODO This no work 
-        parameters[user_data][app_data]
-        print(parameters)
-        print("Hosting server")
+    if sender == "TCP_host":
+        parameters[user_data][sender] = True
+        update_config()
+        os.system('py H-line.py' if os.name =='nt' else 'python3 H-line.py')
+        parameters[user_data][sender] = False
+        update_config()
     elif sender == "run_observation":
         update_config()
-        print("Running observation")
+        os.system('py H-line.py' if os.name =='nt' else 'python3 H-line.py')
     elif sender == "update_parameters":
         print("Fetching parameters from config.json")
         read_from_config()

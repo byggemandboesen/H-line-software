@@ -1,7 +1,6 @@
-import os, sys, json, contextlib
+import os, sys, json
 from time import sleep
 from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
 
 # Due to Receive.py not wanting to be importet we add src to path
 sys.path.append("src/")
@@ -39,6 +38,7 @@ def main(config):
     # If user wants 24h observations
     if OBSERVATION_PARAM["24h"]:
         # Checks if 360 is divisable with the degree interval and calculates number of collections
+        # TODO Doesn't work with float degree intervals
         try:
             deg_interval = OBSERVATION_PARAM["degree_interval"]
             num_data = int(360/deg_interval) if 360 % deg_interval == 0 else ValueError
@@ -49,49 +49,49 @@ def main(config):
     else:
         num_data = 1
 
-    # Get information from config if necessary (when plot map is checked)
-    if PLOTTING_PARAM["plot_map"]:
-        lat, lon = OBSERVER_PARAM['latitude'], OBSERVER_PARAM['longitude']
-        alt, az = OBSERVER_PARAM['altitude'], OBSERVER_PARAM['azimuth']
-        OBSERVER = Coordinates(lat, lon, alt, az)
-        
-        # Get ra/dec and etc for observer
-        ra, dec = OBSERVER.equatorial()
-        gal_lat, gal_lon = OBSERVER.galactic()
-        observer_velocity = OBSERVER.observer_velocity(gal_lat, gal_lon)
-
-        # Now, get list of RA coordinates for each observation:
-        if OBSERVATION_PARAM["24h"]:
-            ra_list = [ra]
-            # We don't want the RA > 360 hence the if statements below
-            for i in range(1, int(num_data)):
-                ra_list.append(round(ra_list[i-1] + deg_interval if ra_list[i-1] + deg_interval <= 360.0 else deg_interval - (360.0 - ra_list[i-1]), 1))
+    # Get information from config
+    lat, lon = OBSERVER_PARAM['latitude'], OBSERVER_PARAM['longitude']
+    alt, az = OBSERVER_PARAM['altitude'], OBSERVER_PARAM['azimuth']
+    OBSERVER = Coordinates(lat, lon, alt, az)
+    
+    # Get ra/dec and etc for observer
+    ra, dec = OBSERVER.equatorial()
+    gal_lat, gal_lon = OBSERVER.galactic()
+    observer_velocity = OBSERVER.observerVelocity(gal_lat, gal_lon)
     
     # Get SDR
     if SDR_PARAM["connect_to_host"]:
         sdr = RTL_CLASS.rtlTcpClient()
     else:
         sdr = RTL_CLASS.rtlClient()
-    
-    # Perform observations
-    # TODO Basically allow for the bellow to happen with 24H observations
-    # current_time = datetime.utcnow()
-    freqs = DSP_CLASS.generateFreqs(sample_rate = SDR_PARAM["sample_rate"])
-    h_line_data = DSP_CLASS.sample(sdr)
-    
-    # Sample blank
-    sdr.center_freq += 3000000
-    blank_data = DSP_CLASS.sample(sdr)
 
-    SNR_spectrum, max_SNR = DSP_CLASS.computeSNR(freqs = freqs, h_line_data = h_line_data, blank_data = blank_data)
-    if DSP_PARAM["median"] != 0:
-        SNR_spectrum = DSP_CLASS.applyMedian(SNR_spectrum)
-    
-    plt.plot(SNR_spectrum)
-    plt.show()
-    # Now, plot the data
-    # PLOT_CLASS = Plotter(**PLOTTING_PARAM)
-    # TODO Plot that sheit!!
+    # Check if it should observe for 24H
+    if OBSERVATION_PARAM["24h"]:
+        ra_list = [ra]
+        # Calculate list of all RA values for each observation
+        # We don't want the RA > 360 hence the if statements below
+        for i in range(1, int(num_data)):
+            ra_list.append(round(ra_list[i-1] + deg_interval if ra_list[i-1] + deg_interval <= 360.0 else deg_interval - (360.0 - ra_list[i-1]), 1))
+        
+        # Now, observe
+        current_time = datetime.utcnow()
+        for i in range (num_data):
+            print(f"Started observing! - {datetime.utcnow()}")
+            observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra_list[i], dec, observer_velocity)
+            print(f"Done observing! - {datetime.utcnow()}")
+
+            # Wait for next execution
+            clear_console()
+            end_time = current_time + timedelta(seconds = second_interval * (i + 1))
+            time_remaining = end_time - datetime.utcnow()
+            print(f'Waiting for next data collection in {time_remaining.total_seconds()} seconds')
+            sleep(time_remaining.total_seconds())
+        
+        # TODO Generate GIF or something
+    else:
+        print(f"Started observing! - {datetime.utcnow()}")
+        observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec, observer_velocity)
+        print(f"Done observing! - {datetime.utcnow()}")
 
 
 '''
@@ -140,31 +140,55 @@ def main(config):
         quit()
 '''
 
-# # Write debug file
-# # TODO Add raw data in this file as well
-# def write_debug(freqs, data, args, ra, dec):
-#     parameters = {
-#         "sample_rate": args.sample_rate,
-#         "ppm": args.ppm,
-#         "resolution": args.resolution,
-#         "num_FFT": args.num_FFT,
-#         "num_med": args.num_med
-#     }
-#     if not isinstance(data, list):
-#         data = data.tolist()
-#     data = {
-#         "Freqs": freqs.tolist(),
-#         "Data": data
-#     }
-#     json_file = {"Parameters": parameters, "Data": data}
+def observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec, observer_velocity):
+    freqs = DSP_CLASS.generateFreqs(sample_rate = SDR_PARAM["sample_rate"])
+    h_line_data = DSP_CLASS.sample(sdr)
+    
+    # Sample blank
+    sdr.center_freq += 3000000
+    blank_data = DSP_CLASS.sample(sdr)
 
-#     if "none" in (ra, dec):
-#         stamp = datetime.utcnow().strftime('D%m%d%YT%H%M%S')
-#     else:
-#         stamp = f'ra={ra},dec={dec}'
+    # Get SNR spectrum, correct for slant and apply median filter
+    SNR_spectrum = DSP_CLASS.combineSpectrums(freqs = freqs, h_line_data = h_line_data, blank_data = blank_data)
+    if DSP_PARAM["median"] != 0:
+        SNR_spectrum = DSP_CLASS.applyMedian(SNR_spectrum)
 
-#     with open(f"Spectrums/debug({stamp}).json", "w") as file:
-#         json.dump(json_file, file, indent = 4)
+    PLOT_CLASS = Plotter(**PLOTTING_PARAM)
+    # Get doppler
+    max_SNR, doppler = PLOT_CLASS.getDoppler(SNR_spectrum,freqs)
+    plot_info = {"ra": ra, "dec": dec,"obs_vel": observer_velocity, "SNR": round(max_SNR,2), "doppler": doppler}
+    obs_name = PLOT_CLASS.plot(freqs=freqs,data=SNR_spectrum,**plot_info)
+    
+    if debug:
+        print("Writing debug file!")
+        writeDebug(freqs, SNR_spectrum, h_line_data, blank_data, SDR_PARAM, DSP_PARAM, obs_name, **plot_info)
+
+
+# Write debug file
+def writeDebug(freqs, SNR_spectrum, h_line_spectrum, blank_spectrum, SDR_PARAM, DSP_PARAM, obs_name, **kwargs):
+    ra, dec = kwargs["ra"], kwargs["dec"]
+    SNR, doppler = kwargs["SNR"], kwargs["doppler"]
+
+    json_file = {
+        "SDR Parameters": SDR_PARAM,
+        "DSP Parameters": DSP_PARAM,
+        "Observation results": {
+            "RA": ra,
+            "Dec": dec,
+            "Doppler": doppler,
+            "Max SNR": SNR
+        },
+        "Data": {
+            "Blank spectrum": blank_spectrum.tolist(),
+            "H-line spectrum": h_line_spectrum.tolist(),
+            "SNR Spectrum": SNR_spectrum.tolist(),
+            "Frequency list": freqs.tolist()
+        }
+    }
+
+    # Save file
+    with open(f"Spectrums/debug({obs_name}).json", "w") as file:
+        json.dump(json_file, file, indent = 4)
 
 
 def clear_console():
