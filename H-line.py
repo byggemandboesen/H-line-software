@@ -69,6 +69,7 @@ def main(config):
         current_time = datetime.utcnow()
         for i in range (num_data):
             print(f"Started observing! - {datetime.utcnow()}")
+            print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
             with contextlib.redirect_stdout(None):
                 observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra_list[i], dec, observer_velocity)
             print(f"Done observing! - {datetime.utcnow()}")
@@ -83,6 +84,7 @@ def main(config):
         # TODO Generate GIF or something
     else:
         print(f"Started observing! - {datetime.utcnow()}")
+        print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
         with contextlib.redirect_stdout(None):
             observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec, observer_velocity)
         print(f"Done observing! - {datetime.utcnow()}")

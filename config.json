@@ -7,9 +7,9 @@
         "host_IP": "127.0.0.1"
     },
     "DSP": {
-        "number_of_fft": 10000,
+        "number_of_fft": 1000,
         "resolution": 11,
-        "median": 5
+        "median": 3
     },
     "observer": {
         "latitude": 0.0,
