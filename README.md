@@ -4,8 +4,8 @@ The software uses the [pyrtlsdr library](https://github.com/roger-/pyrtlsdr) to 
 
 ## Why choose this software?
 This project started as a project of my own to make radio astronomy easy and affordable for everyone. There are great pieces of software out there, [Virgo](https://github.com/0xCoto/Virgo) and [Pictor](https://github.com/0xCoto/PICTOR) are personal favourites and inspirations for my own software. <br>
-Although these require setting up a GNU radio environment, which can sometimes be difficult and too much to ask for it you're a beginner/newcomer to the hobby. It's this exact reason I wanted to create a piece of software that will run on many operating systems and only depend on a couple of python packages. <br>
-TL;DR, you should choose this software if you don't have much experience with the GNU radio environment and software defined radios in generel.
+However, these require setting up a GNU radio environment, which can sometimes be difficult and too much to ask for it you're a beginner/newcomer to the hobby. It's this exact reason I wanted to create a piece of software that will run on many operating systems and only depend on a couple of python packages. <br>
+**TL;DR**, you should choose this software if you don't have much experience with the GNU radio environment and software defined radios in generel.
 
 ## Installing
 As usual, the code should be downloaded with git clone.
@@ -14,7 +14,7 @@ git clone https://github.com/byggemandboesen/H-line-software.git
 ~~~
 Some packages are required which can be downloaded with pip:
 ~~~
-pip install matplotlib, numpy, pyephem, pyrtlsdr, imageio, kivymd, pyperclip
+pip install matplotlib numpy pyephem pyrtlsdr imageio
 ~~~
 One can also install the required packages from the "requirements.txt":
 ~~~
@@ -27,7 +27,133 @@ When installing on Linux, one should install librtlsdr-dev, and make sure to use
 sudo apt install librtlsdr-dev
 ~~~
 
-#### Problems with matplotlib/numpy on Raspberry Pi
+### Windows
+If you're using windows, you need to manually download the rtl-sdr drivers and add them to system PATH.
+Download the [rtl-sdr drivers for windows](https://osmocom.org/attachments/2242/RelWithDebInfo.zip) and add the files from the [rtl-sdr drivers](https://ftp.osmocom.org/binaries/windows/rtl-sdr/) into the X64 folder, overwriting any files that may already exist. The "X64" folder has to be added to PATH under system variables.
+
+## Usage
+The software can be run headless on a remote Raspberry pi for example or with the help of the user interface. The following section will describe necessary information about both usage cases.
+
+### Headless/through terminal
+Included in the software directory is the `config.json` file which includes all the software parameters.
+~~~json
+{
+    "SDR": {
+        "sample_rate": 2400000,
+        "PPM_offset": 0,
+        "TCP_host": false,
+        "connect_to_host": false,
+        "host_IP": "127.0.0.1"
+    },
+    "DSP": {
+        "number_of_fft": 1000,
+        "resolution": 11,
+        "median": 3
+    },
+    "observer": {
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "azimuth": 0.0,
+        "altitude": 0.0
+    },
+    "plotting": {
+        "plot_map": false,
+        "y_min": 0.0,
+        "y_max": 0.0
+    },
+    "observation": {
+        "24h": false,
+        "degree_interval": 5.0,
+        "debug": false
+    }
+}
+~~~
+
+* SDR
+This section includes parameters such as the SDR sample rate, PPM offset and RTL-TCP parameters. <br>
+If you want to host an RTL-TCP server, simply set `TCP_host` to `true`.
+If you wish connect to an existing server, set `connect_to_host` to `true` and add the remote `host_IP` of the host.
+* DSP
+Increasing the `number_of_fft` will average more FFT's and will in many cases improve the shape of the hydrogen line. <br>
+Increasing the resolution will receive more samples pr. FFT increasing the general resolution of the FFT. Both of these two parameters will increase sampling/observing time as they are increased but greatly add to the details of the observation. Play around with both! <br>
+The `median` parameter determines how many samples should be averaged together in a rolling median filter. This sometimes helps dealing with noise.
+* Observer
+The geographical position of the observer and the antennas position on the sky. <br>
+Lat/lon are east and north positive and range from [-90,90] and [-180,180].<br>
+The alt/az are north to east going from [0,360] and [0,90] for altitude.
+* Plotting
+Allows the user to `plot_map` of the sky observed at the Hydrogen line frequency. <br>
+The two last parameters determine the y-axis interval on the spectrum. If left to 0, it auto scales the y-axis.
+* Observation
+This section allows the user to perform observations with a fixed `degree_interval` for 24 hours. <br>
+The last parameter allows the user to write a debug file with the data/parameters from the observation.
+
+To edit any of these parameters, simply edit and save the debug file, and then run the software, `py H-line.py` or `python3 H-line.py`.
+
+### Optional UI
+To make it easier to change these parameters one may want to use the optional UI.<br>
+This is available by running the `ui.py` file in terminal:
+```bash
+py ui.py
+python3 ui.py
+```
+![The optional user interface](Spectrums/UI.jpg)
+
+If you need help or forget how the parameters work simply hover above the `(help)` text for each section. <br>
+The UI is made with the [dearpygui](https://github.com/hoffstadt/DearPyGui) package for python.<br>
+
+## Examples
+the following GIf consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>
+The observations were done with an [RTL-SDR V3.0 dongle](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/), [Nooelec SAWbird+ H1](https://www.nooelec.com/store/sdr/sdr-addons/sawbird/sawbird-h1.html) and a [wifi grid dish](https://www.ebay.de/itm/2-4GHz-WLAN-W-LAN-WiFi-Grid-Richtantenne-Gitter-Antenne-Wetterfest-24dBi/223492035303?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649) with a flipped reflector element for better frequency matching. <br>
+![Galactic plane sweep](Spectrums/GIF.gif)
+BVeside the default parameters, the following parameters were used for the observations:
+```
+Numer of FFT = 50000
+median = 0
+Y-axis interval = [-0.2,1.3]
+```
+
+### Plot with Milky Way map
+When setting `show_map: true`, the software plots the observation together with a map of the Milky Way and the observed position.<br>
+This also calculates relative velocity and etc. from the direction of the observation and the observed doppler shift.
+![Plot when using config](Spectrums/ra=304.3,dec=39.9.png)
+In this example, a resolution of 12 is used instead of 11.
+
+### Using RTL-TCP
+RTL-TCP is supported through the pyrtlsdr package. This allows a device, with an RTL unit connected, to act as a host/server using the `TCP_host` parameter.<br>
+
+This will create a server open to port 5050 and the device's local ip, for example 192.168.0.29. If you wish to change to local host, you will, at the current moment, have to edit the code itself. <br>
+In `rtl.py` modify the following line in the function `tcpHost()`: <br>
+~~~python
+server = RtlSdrTcpServer(hostname = local_ip, port = 5050)
+server = RtlSdrTcpServer(hostname = '127.0.0.1', port = 5050)
+~~~
+Note, using RTL-TCP may be significantly slower than running everything locally depending on wifi/internet speeds.
+
+### Debugging data
+Setting the debug parameter to true will write a debug file from the corresponding observation. This includes the observation parameters, and all the received data before and after processing.
+~~~json
+{
+  "SDR Parameters": SDR_PARAM,
+  "DSP Parameters": DSP_PARAM,
+  "Observation results": {
+      "RA": ra,
+      "Dec": dec,
+      "Doppler": doppler,
+      "Max SNR": SNR
+  },
+  "Data": {
+      "Blank spectrum": "List with blank spectrum",
+      "H-line spectrum": "List with H-line spectrum",
+      "SNR Spectrum": "List with the processed data from the two above",
+      "Frequency list": "List with frequencies"
+  }
+}
+~~~
+## Errors/FAQ
+You run into errors when running the software, or have some questions about it. Check the list below to find help. If you didn't find the answer you were looking for, feel free to get in contact with me on [Twitter](https://twitter.com/victor_boesen).
+
+### Problems with matplotlib/numpy on Raspberry Pi
 If you run into problems with matplotlib and numpy running the software on a Raspberry Pi, more specifically this error - *"Importing the numpy c-extensions failed"*. <br>
 Then run the following command as per [this issue on GitHub](https://github.com/numpy/numpy/issues/15744).
 ~~~
@@ -37,134 +163,9 @@ However, it is adviced you run the following if other problems occur.:
 ~~~
 sudo apt update
 sudo apt upgrade
-~~~~
-
-### Windows
-If you're using windows, you need to manually download the rtl-sdr drivers and add them to system PATH.
-Download the [rtl-sdr drivers for windows](https://osmocom.org/attachments/2242/RelWithDebInfo.zip) and add the add the files from the [rtl-sdr drivers](https://ftp.osmocom.org/binaries/windows/rtl-sdr/) into the X64 folder (overwrite the files that already exist). Then the "x64" folder has to be added to PATH under system variables. This will require a shell restart.
-
-## Usage
-The software is meant for observing the hydrogen line which means the software has set default receiving parameters, but these can be modified with argparser according to your preferences. <br>
-The following parameters can be modified/added:
-~~~
-optional arguments:
-  -h, --help            show this help message and exit
-  -s Sample rate        Tuner sample rate
-  -o PPM offset         Set custom tuner offset PPM
-  -r Resolution         Amount of samples = 2 raised to the power of the input
-  -n Number of FFT's    Number of FFT's to be collected and averaged
-  -i Degree interval    Degree interval of each data-collection. Collects data for 24h.
-  -m Median smoothing   Number of data-points to compute median from. Smooths data and compresses noise
-  -t                    Run RTL-TCP host for streaming to client
-  -e RTL-TCP streaming  Stream from IP of remote server. This command is used for client side.
-  -d                    Debug data
-  -l Latitude           The latitude of the antenna's position as a float, north is positive
-  -g Longitude          The longitude of the antenna's position as a float, east is positive
-  -z Azimuth            The azimuth of the poting direction
-  -a Altitude           The elevation of the pointing direction
-  -c                    Use lat, lon of QTH and antenna alt/az from config file
-~~~
-The latitude, longitude, azimuth and altitude can also be modified in the "config.json" and used by using the console argument "-c". This will then save you some time from writing latitude & longitude. Keep in mind the azimuth ranges from zero to positive 180 degrees and then goes straight to -180 to 0. This means an azimuth of 270 degrees will be -90 degrees. <br>
-If one is located in noisy conditions a resolution at around 9-10 may result in a cleaner spectrum and to increase detail a higher number of FFT's should be taken. Interference can also be dealt with by smoothing the data with a median filter using "-m X". This will compute the median for each point from X points besides it. An isolated interference spike will therefor be less powerful.
-To disable the autoscaling in the plots, you can set your own y-axis interval in the config.json to for example, low_y = -1 & high_y = 1. An example of this is shown under examples.
-
-### Optional UI
-To simplify usage even more and avoid manually typing command line arguments an optional UI is available.<br>
-This is available through the following command:
-```bash
-py ui.py
-```
-![The optional user interface](Spectrums/UI.jpg)
-
-**NOTE!** It's a brand new feature and will likely change in the near future when doing a rewrite of the software structure at some point. However, for now it supports the majority of features except manually setting plotting y-axis interval, although I'll be working on adding that.<br>
-The UI is made with the [kivymd](https://github.com/kivymd/KivyMD) language for python.<br>
-
-#### Error when using UI on Raspberry Pi
-You may experience an error similar to , `Unable to get a window, abort` on a Raspberry pi. Please get the following packages:
-```bash
-sudo apt-get install libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0
-```
-Also note you will need python 3.8 or older for Kivymd.
-
-## Examples
-the following GIf consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>
-The observations were done with an [RTL-SDR V3.0 dongle](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/), [Nooelec SAWbird+ H1](https://www.nooelec.com/store/sdr/sdr-addons/sawbird/sawbird-h1.html) and a [wifi grid dish](https://www.ebay.de/itm/2-4GHz-WLAN-W-LAN-WiFi-Grid-Richtantenne-Gitter-Antenne-Wetterfest-24dBi/223492035303?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649) with a flipped reflector element for better frequency matching. <br>
-![Galactic plane sweep](Spectrums/GIF.gif)
-The observation paramteres used were "-n 50000" for an average of 50k FFT's and "-c" to use information from the config file. In the config file the Y-axis interval for the plot was specified together with the antenna's position on the sky and my observing location in lat/lon coordinates. <br>
-Below is an example of the config file to reproduce these results, although remember the azimuth and altitude coordinates will differ:
-~~~
-{
-    "latitude": xx.xx,
-    "longitude": yy.yy,
-    "azimuth": -80,
-    "altitude": 45,
-    "low_y": -0.2,
-    "high_y": 1.3
-}
-~~~
-The console argument can be seen here:
-~~~
-py h-line.py -n 50000 -c
-~~~
-On Linux the same command would be:
-~~~
-python3 H-line.py -n 50000 -c
 ~~~
 
-### Plot example with config
-When using the observer coordinates together with alt/az coordinates of the area observed the software will generate a plot showing the observed area in the Milky way, <br>
-together with other parameters such as source and observer velocity in the observed direction. The following is an example plot: <br>
-![Plot when using config](Spectrums/ra=304.3,dec=39.9.png)
-The command for the plot above: <br>
-Windows:
-~~~
-py H-line.py -c -n 50000 -r 12
-~~~
-Linux
-~~~
-python3 H-line.py -c -n 50000 -r 12
-~~~
-
-## Using RTL-TCP
-RTL-TCP is supported through the pyrtlsdr package. This allows a device, with an RTL unit connected, to act as a host/server using the following command. <br>
-~~~
-py h-line.py -t
-~~~
-On Linux the same command would be:
-~~~
-python3 H-line.py -t
-~~~
-This will create a server open to port 5050 and the device's local ip, for example 192.168.0.29. If you wish to change to local host, you will have to edit the code itself. <br>
-In Rtltcp.py modify the following line in the function "rtltcphost()": <br>
-~~~python
-server = RtlSdrTcpServer(hostname = local_ip, port = 5050)
-server = RtlSdrTcpServer(hostname = '127.0.0.1', port = 5050)
-~~~
-Note, using RTL-TCP may be significantly slower than running everything locally depending on wifi/internet speeds.
-
-## Debugging data
-As a new addition, the user can now debug their data using the "-d" command line option. This writes a json file with all the parameters and data from the observation.
-~~~json
-{
-  "Parameters": {
-    "sample_rate": 2400000,
-    "ppm": 0,
-    "resolution": 11,
-    "num_FFT": 1000,
-    "num_med": 3
-  },
-  "Data": {
-    "Freqs": "List with frequencies",
-    "Data": "List with PF/PSD data"
-  }
-}
-~~~
-Above is an example of what a debug file might look like using the defult parameters, eg. the following command:
-~~~bash
-py H-line.py -d
-~~~
-
-## Using this with E4000 tuners
+### Using this with E4000 tuners
 Since the intention of this software is to motivate amateurs to give radio astronomy a try the versatility of the software is limited to the packages available. The RTL2832U tuner is well supported by the pyrtlsdr package Although it does lack certain features like offset tuning, which results in degraded performance for E4000 tuner SDR's like the Nooelec Smart XTR for example. <br>
 If the pyrtlsdr package improves/introduces new features that allow for further improvements I will be implementing these in my software ASAP.
 
@@ -173,7 +174,6 @@ I would like to thank [0xCoto](https://github.com/0xCoto) AKA "Apostolos" for le
 I really appreciate his work for the amateur radio astronomy community!
 
 ## TODO
-* Complete re-write to improve code structure
-* Create optional UI for easier use
 * Direct bias-t interaction
-* Fix incosistent spectrum size when y-axis autoscales
+* Fix inconsistent spectrum size when y-axis autoscales
+* Bug-hunting

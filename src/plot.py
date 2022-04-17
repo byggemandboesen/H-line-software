@@ -148,3 +148,11 @@ class Plotter():
         diff_freq = doppler*self.H_FREQUENCY/self.C_SPEED
         freq = diff_freq+self.H_FREQUENCY
         return freq
+    
+    
+    # Generates and saves a GIF of 24H observations
+    def generateGIF(self, ra, dec):
+        print('Generating GIF from observations... This may take a while')
+        path = f'Spectrums/ra={ra[0]},dec={dec}.gif'
+        images = [imageio.imread(f'Spectrums/ra={coord},dec={dec}.png') for coord in ra]
+        imageio.mimsave(path, images)

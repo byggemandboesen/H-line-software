@@ -13,6 +13,7 @@ from dsp import DSP
 
 # Main method
 def main(config):
+    clear_console()
     SDR_PARAM = config["SDR"]
     DSP_PARAM = config["DSP"]
     OBSERVER_PARAM = config["observer"]
@@ -22,6 +23,7 @@ def main(config):
     # Define some classes:
     RTL_CLASS = RTL(**SDR_PARAM)
     DSP_CLASS = DSP(**DSP_PARAM)
+    PLOT_CLASS = Plotter(**PLOTTING_PARAM)
     
     # Does user want this device to act as RTL-TCP host? If yes - start host
     if SDR_PARAM["TCP_host"]:
@@ -71,7 +73,7 @@ def main(config):
             print(f"Started observing! - {datetime.utcnow()}")
             print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
             with contextlib.redirect_stdout(None):
-                observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra_list[i], dec, observer_velocity)
+                observe(DSP_CLASS, PLOT_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra_list[i], dec, observer_velocity)
             print(f"Done observing! - {datetime.utcnow()}")
 
             # Wait for next execution
@@ -81,17 +83,17 @@ def main(config):
             print(f'Waiting for next data collection in {time_remaining.total_seconds()} seconds')
             sleep(time_remaining.total_seconds())
         
-        # TODO Generate GIF or something
+        PLOT_CLASS.generateGIF(ra=ra_list,dec=dec)
     else:
         print(f"Started observing! - {datetime.utcnow()}")
         print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
         with contextlib.redirect_stdout(None):
-            observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec, observer_velocity)
+            observe(DSP_CLASS, PLOT_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec, observer_velocity)
         print(f"Done observing! - {datetime.utcnow()}")
 
 
 # Perform observation
-def observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec, observer_velocity):
+def observe(DSP_CLASS, PLOT_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec, observer_velocity):
     freqs = DSP_CLASS.generateFreqs(sample_rate = SDR_PARAM["sample_rate"])
     h_line_data = DSP_CLASS.sample(sdr)
     
