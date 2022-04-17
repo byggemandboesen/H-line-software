@@ -3,5 +3,4 @@ numpy==1.21.1
 pyephem==9.99
 pyrtlsdr==0.2.92
 imageio==2.9.0
-kivymd==0.104.2
-pyperclip==1.8.2
+dearpygui==1.5.1

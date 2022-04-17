@@ -168,10 +168,10 @@ def run_ui():
         # Show tooltip when hovered above
         with dpg.tooltip("observer_category"):
             help_msg = '''
-            Latitude/longitude of observer position.
-            Lat = [-90,90], Lon = [-180,180], where east and north is positive.
-            Azimuth/altitude of antenna position.
-            Azimuth = [0,360] going east from north. Altitude = [0,90].
+            Latitude/longitude = Position of observer position.
+            Lat in [-90,90], Lon in [-180,180], where east and north is positive.
+            Azimuth/altitude = Direction of antenna position.
+            Azimuth in [0,360] going east from north. Altitude in [0,90].
             '''
             dpg.add_text(textwrap.dedent(help_msg))
 
@@ -213,10 +213,21 @@ def run_ui():
     
     # Update values, change theme and etc.
     with dpg.window(label="Actions", width=300,height=150,pos=(320,300),no_resize=True,no_close=True,no_move=True):
-        dpg.add_text("Perform actions")
-        dpg.add_button(label="Update parameters from config",tag="update_parameters",callback=btn_callback)
+        with dpg.group(horizontal=True):
+            dpg.add_text("Perform actions")
+            dpg.add_text("(help)", tag="action_category")
+        
         dpg.add_button(label="Edit theme",tag="edit_theme",callback=btn_callback)
         dpg.add_button(label="Browse observations",tag="open_obs_folder",callback=btn_callback)
+        dpg.add_button(label="Update parameters from config",tag="update_parameters",callback=btn_callback)
+
+        with dpg.tooltip("action_category"):
+            help_msg = '''
+            Edit theme = Edit the look and appearance of the user interface
+            Browse observations = Browse the folder with previous observations
+            Update parameters from config = Updates the UI with the parameters from the config file
+            '''
+            dpg.add_text(textwrap.dedent(help_msg))
 
 
     # TODO Show map of current antenna direction in Milky way
