@@ -1,50 +1,38 @@
-import ephem
-from ephem import degree
-import numpy as np
+from astropy import units as u
+from astropy.time import Time
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz, ICRS, Galactic
 
 class Coordinates:
     
     # init function creates pyephem observer and stores it in self
-    def __init__(self, lat, lon, alt, az):
-        self.QTH = ephem.Observer()
-        self.QTH.lat = str(lat)
-        self.QTH.lon = str(lon)
-        self.QTH.pressure = 0
-        self.alt = alt
-        self.az = az
+    def __init__(self, lat, lon):
+        self.QTH = EarthLocation(lat = lat*u.degree, lon=lon*u.degree,height=0*u.m)
+        self.TIME = Time.now()
     
 
     # Returns galactic coordinates
-    def galactic(self):
-        ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
-        eq_grid = ephem.Equatorial(ra, dec)
-        gal_lat, gal_lon = ephem.Galactic(eq_grid).lat / degree, ephem.Galactic(eq_grid).lon / degree
-        return round(gal_lat, 2), round(gal_lon, 2)
+    def galactic(self, alt, az):
+        horizontal_coord = AltAz(alt = alt*u.degree, az = az*u.degree, pressure = 0*u.bar, obstime = self.TIME,location=self.QTH)
+        gal_coord = horizontal_coord.transform_to(Galactic())
+
+        # Return lon (l), lat (b)
+        return round(gal_coord.l.degree, 2), round(gal_coord.b.degree, 2)
     
 
     # Returns equatorial coordinates
-    def equatorial(self):
-        ra, dec = self.QTH.radec_of(str(self.az), str(self.alt))
-        return round(ra / degree, 2), round(dec / degree, 2)
-
-
-    # Calculates apparent velocity of galactic coordinate
-    def observerVelocity(self, lat, lon):
-        orb_vel = 220 # km/s
-        # Radian stuff
-        lat = lat * np.pi / 180
-        lon = lon * np.pi / 180
-
-        # We determine the angle bewteen Earth's velocity-vector and a unit-vector to the galactic coordinate
-        obj_vec = np.array(
-            [1 * np.cos(lon) * np.cos(lat),
-            1 * np.sin(lon) * np.cos(lat),
-            1 * np.sin(lat)])
-        sun_vec = np.array([0, orb_vel, 0])
-
-        dot_prod = np.dot(obj_vec, sun_vec)
-        angle = np.arccos(dot_prod/(np.linalg.norm(obj_vec)*np.linalg.norm(sun_vec)))
+    def equatorial(self, alt, az):
+        horizontal_coord = AltAz(alt = alt*u.degree, az = az*u.degree, pressure = 0*u.bar, obstime = self.TIME,location=self.QTH)
+        eq_coord = SkyCoord(horizontal_coord.transform_to(ICRS()))
         
-        # Multiply solar system orbit velocity with cos to the angle to the object to find velocity component in that direction
-        rel_vel = orb_vel * np.cos(angle)
-        return np.round(rel_vel,2)
+        return round(eq_coord.ra.degree, 2), round(eq_coord.dec.degree, 2)
+
+
+    # Calculates observers velocity to the observed area relative to the barycenter for Earth and the Sun
+    def radialVelocityCorrection(self, alt, az):
+        horizontal_coord = AltAz(alt = alt*u.degree, az = az*u.degree, pressure = 0*u.bar, obstime = self.TIME,location=self.QTH)
+        eq_coord = SkyCoord(horizontal_coord.transform_to(ICRS()))
+
+        v_observer = eq_coord.radial_velocity_correction(kind='barycentric', obstime=self.TIME, location=self.QTH)
+        v_observer = -v_observer.to(u.km/u.s)
+
+        return round(v_observer.value, 2)
