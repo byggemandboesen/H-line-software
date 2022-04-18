@@ -2,6 +2,24 @@
 This software is created with the main purpose of receiving the hydrogen line at a frequency of approximately 1420.4MHz. <br>
 The software uses the [pyrtlsdr library](https://github.com/roger-/pyrtlsdr) to collect samples from the RTL-SDR V3.0 dongle and numpy to perform FFT and signal processing. Finally, the data is shown in a chart from the pyplot library in matplotlib.
 
+- [H-line-software](#h-line-software)
+  - [Why choose this software?](#why-choose-this-software)
+  - [Installing](#installing)
+    - [Linux](#linux)
+    - [Windows](#windows)
+  - [Usage](#usage)
+    - [Headless/through terminal](#headlessthrough-terminal)
+    - [Optional UI](#optional-ui)
+  - [Examples](#examples)
+    - [Plot with Milky Way map](#plot-with-milky-way-map)
+    - [Using RTL-TCP](#using-rtl-tcp)
+    - [Debugging data](#debugging-data)
+  - [Errors/FAQ](#errorsfaq)
+    - [Problems with matplotlib/numpy on Raspberry Pi](#problems-with-matplotlibnumpy-on-raspberry-pi)
+    - [Using this with E4000 tuners](#using-this-with-e4000-tuners)
+  - [Contributions/credit](#contributionscredit)
+  - [TODO](#todo)
+
 ## Why choose this software?
 This project started as a project of my own to make radio astronomy easy and affordable for everyone. There are great pieces of software out there, [Virgo](https://github.com/0xCoto/Virgo) and [Pictor](https://github.com/0xCoto/PICTOR) are personal favourites and inspirations for my own software. <br>
 However, these require setting up a GNU radio environment, which can sometimes be difficult and too much to ask for it you're a beginner/newcomer to the hobby. It's this exact reason I wanted to create a piece of software that will run on many operating systems and only depend on a couple of python packages. <br>
