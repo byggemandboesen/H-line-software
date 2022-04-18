@@ -78,7 +78,7 @@ def main(config):
             print(f"Done observing! - {datetime.utcnow()}")
 
             # Wait for next execution
-            # clear_console()
+            clear_console()
             end_time = current_time + timedelta(seconds = second_interval * (i + 1))
             time_remaining = end_time - datetime.utcnow()
             print(f'Waiting for next data collection in {time_remaining.total_seconds()} seconds')
