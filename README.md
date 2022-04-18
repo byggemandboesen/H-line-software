@@ -2,7 +2,9 @@
 This software is created with the main purpose of receiving the hydrogen line at a frequency of approximately 1420.4MHz. <br>
 The software uses the [pyrtlsdr library](https://github.com/roger-/pyrtlsdr) to collect samples from the RTL-SDR V3.0 dongle and numpy to perform FFT and signal processing. Finally, the data is shown in a chart from the pyplot library in matplotlib.
 
+# Table of contents
 - [H-line-software](#h-line-software)
+- [Table of contents](#table-of-contents)
   - [Why choose this software?](#why-choose-this-software)
   - [Installing](#installing)
     - [Linux](#linux)
@@ -121,10 +123,10 @@ If you need help or forget how the parameters work simply hover above the `(help
 The UI is made with the [dearpygui](https://github.com/hoffstadt/DearPyGui) package for python.<br>
 
 ## Examples
-the following GIf consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>
+The following GIF consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>
 The observations were done with an [RTL-SDR V3.0 dongle](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/), [Nooelec SAWbird+ H1](https://www.nooelec.com/store/sdr/sdr-addons/sawbird/sawbird-h1.html) and a [wifi grid dish](https://www.ebay.de/itm/2-4GHz-WLAN-W-LAN-WiFi-Grid-Richtantenne-Gitter-Antenne-Wetterfest-24dBi/223492035303?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649) with a flipped reflector element for better frequency matching. <br>
 ![Galactic plane sweep](Spectrums/GIF.gif)
-Beside the default parameters, the following parameters were used for the observations:
+Besides the default parameters, the following parameters were used for the observations:
 ```
 Numer of FFT = 50000
 Median = 0
