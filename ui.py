@@ -1,3 +1,4 @@
+import subprocess
 import json
 import os
 import textwrap
@@ -77,7 +78,7 @@ def btn_callback(sender, app_data, user_data):
         if os.name == 'nt':
             os.startfile(path)
         else:
-            os.system(path)
+            subprocess.Popen(path)
 
 
 # Handle checkbox actions
