@@ -19,7 +19,7 @@ class DSP():
             PSD_zero_checked = self.checkForZero(PSD)
             PSD_log = 10.0*np.log10(PSD_zero_checked)
 
-            PSD_sum = np.add(PSD_sum,PSD_log)
+            PSD_sum = np.add(PSD_sum,np.fft.fftshift(PSD_log))
         
         mean_PSD = np.true_divide(PSD_sum,self.NUM_FFT)
         return mean_PSD
