@@ -106,18 +106,23 @@ The UI is made with the [dearpygui](https://github.com/hoffstadt/DearPyGui) pack
 the following GIf consists of 19 separate observations from across the galactic plane in 10 degree intervals. <br>
 The observations were done with an [RTL-SDR V3.0 dongle](https://www.rtl-sdr.com/buy-rtl-sdr-dvb-t-dongles/), [Nooelec SAWbird+ H1](https://www.nooelec.com/store/sdr/sdr-addons/sawbird/sawbird-h1.html) and a [wifi grid dish](https://www.ebay.de/itm/2-4GHz-WLAN-W-LAN-WiFi-Grid-Richtantenne-Gitter-Antenne-Wetterfest-24dBi/223492035303?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649) with a flipped reflector element for better frequency matching. <br>
 ![Galactic plane sweep](Spectrums/GIF.gif)
-BVeside the default parameters, the following parameters were used for the observations:
+Beside the default parameters, the following parameters were used for the observations:
 ```
 Numer of FFT = 50000
-median = 0
+Median = 0
 Y-axis interval = [-0.2,1.3]
 ```
 
 ### Plot with Milky Way map
 When setting `show_map: true`, the software plots the observation together with a map of the Milky Way and the observed position.<br>
 This also calculates relative velocity and etc. from the direction of the observation and the observed doppler shift.
-![Plot when using config](Spectrums/ra=304.3,dec=39.9.png)
-In this example, a resolution of 12 is used instead of 11.
+![Plot when using config](Spectrums/ra=28.36,dec=63.35.png)
+In this example, the following parameters were used besides the default parameters:
+```
+Number of FFT = 50000
+Median = 10
+Y-axis interval = [-0.2,1.3]
+```
 
 ### Using RTL-TCP
 RTL-TCP is supported through the pyrtlsdr package. This allows a device, with an RTL unit connected, to act as a host/server using the `TCP_host` parameter.<br>
