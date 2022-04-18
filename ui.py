@@ -78,7 +78,7 @@ def btn_callback(sender, app_data, user_data):
         if os.name == 'nt':
             os.startfile(path)
         else:
-            subprocess.Popen(path)
+            subprocess.Popen(["xdg-open", path])
 
 
 # Handle checkbox actions
