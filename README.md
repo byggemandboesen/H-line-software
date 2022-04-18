@@ -134,20 +134,21 @@ Note, using RTL-TCP may be significantly slower than running everything locally 
 Setting the debug parameter to true will write a debug file from the corresponding observation. This includes the observation parameters, and all the received data before and after processing.
 ~~~json
 {
-  "SDR Parameters": SDR_PARAM,
-  "DSP Parameters": DSP_PARAM,
-  "Observation results": {
-      "RA": ra,
-      "Dec": dec,
-      "Doppler": doppler,
-      "Max SNR": SNR
-  },
-  "Data": {
-      "Blank spectrum": "List with blank spectrum",
-      "H-line spectrum": "List with H-line spectrum",
-      "SNR Spectrum": "List with the processed data from the two above",
-      "Frequency list": "List with frequencies"
-  }
+    "SDR Parameters": SDR_PARAM,
+    "DSP Parameters": DSP_PARAM,
+    "Observation results": {
+        "RA": ra,
+        "Dec": dec,
+        "Radial velocity": radial_velocity,
+        "Radial correction": radial_correction,
+        "Max SNR": SNR
+    },
+    "Data": {
+        "Blank spectrum": "List with blank spectrum",
+        "H-line spectrum": "List with H-line spectrum",
+        "SNR Spectrum": "List with the processed data from the two above",
+        "Frequency list": "List with frequencies"
+    }
 }
 ~~~
 ## Errors/FAQ
@@ -177,3 +178,5 @@ I really appreciate his work for the amateur radio astronomy community!
 * Direct bias-t interaction
 * Fix inconsistent spectrum size when y-axis autoscales
 * Bug-hunting
+* Mitigate to astropy
+* Allow for DPI scaling of UI

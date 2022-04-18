@@ -7,8 +7,9 @@ from datetime import datetime, timedelta
 sys.path.append("src/")
 from rtl import RTL
 from plot import Plotter
-from Ephem import Coordinates
+from ephem import Coordinates
 from dsp import DSP
+from analysis import Analysis
 
 
 # Main method
@@ -46,12 +47,12 @@ def main(config):
     # Get information from config
     lat, lon = OBSERVER_PARAM['latitude'], OBSERVER_PARAM['longitude']
     alt, az = OBSERVER_PARAM['altitude'], OBSERVER_PARAM['azimuth']
-    OBSERVER = Coordinates(lat, lon, alt, az)
+    OBSERVER = Coordinates(lat, lon)
     
     # Get ra/dec and etc for observer
-    ra, dec = OBSERVER.equatorial()
-    gal_lat, gal_lon = OBSERVER.galactic()
-    observer_velocity = OBSERVER.observerVelocity(gal_lat, gal_lon)
+    ra, dec = OBSERVER.equatorial(alt, az)
+    # gal_lat, gal_lon = OBSERVER.galactic(alt, az)
+    radial_correction = OBSERVER.radialVelocityCorrection(alt, az)
     
     # Get SDR
     if SDR_PARAM["connect_to_host"]:
@@ -73,7 +74,7 @@ def main(config):
             print(f"Started observing! - {datetime.utcnow()}")
             print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
             with contextlib.redirect_stdout(None):
-                observe(DSP_CLASS, PLOT_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra_list[i], dec, observer_velocity)
+                observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra_list[i], dec, radial_correction)
             print(f"Done observing! - {datetime.utcnow()}")
 
             # Wait for next execution
@@ -88,12 +89,13 @@ def main(config):
         print(f"Started observing! - {datetime.utcnow()}")
         print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
         with contextlib.redirect_stdout(None):
-            observe(DSP_CLASS, PLOT_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec, observer_velocity)
+            observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec, radial_correction)
         print(f"Done observing! - {datetime.utcnow()}")
 
 
 # Perform observation
-def observe(DSP_CLASS, PLOT_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec, observer_velocity):
+# TODO Make this easier and not messy
+def observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec, radial_correction):
     freqs = DSP_CLASS.generateFreqs(sample_rate = SDR_PARAM["sample_rate"])
     h_line_data = DSP_CLASS.sample(sdr)
     
@@ -107,9 +109,10 @@ def observe(DSP_CLASS, PLOT_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, 
         SNR_spectrum = DSP_CLASS.applyMedian(SNR_spectrum)
 
     PLOT_CLASS = Plotter(**PLOTTING_PARAM)
-    # Get doppler
-    max_SNR, doppler = PLOT_CLASS.getDoppler(SNR_spectrum,freqs)
-    plot_info = {"ra": ra, "dec": dec,"obs_vel": observer_velocity, "SNR": round(max_SNR,2), "doppler": doppler}
+    ANALYSIS_CLASS = Analysis()
+    # Get radial velocity and maximum SNR
+    max_SNR, radial_velocity = ANALYSIS_CLASS.getRadialVelocity(SNR_spectrum,freqs)
+    plot_info = {"ra": ra, "dec": dec, "radial_correction": radial_correction, "SNR": max_SNR, "radial_velocity": radial_velocity}
     obs_name = PLOT_CLASS.plot(freqs=freqs,data=SNR_spectrum,**plot_info)
     
     if debug:
@@ -120,7 +123,7 @@ def observe(DSP_CLASS, PLOT_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, 
 # Write debug file
 def writeDebug(freqs, SNR_spectrum, h_line_spectrum, blank_spectrum, SDR_PARAM, DSP_PARAM, obs_name, **kwargs):
     ra, dec = kwargs["ra"], kwargs["dec"]
-    SNR, doppler = kwargs["SNR"], kwargs["doppler"]
+    SNR, radial_velocity, radial_correction = kwargs["SNR"], kwargs["radial_velocity"], kwargs["radial_correction"]
 
     json_file = {
         "SDR Parameters": SDR_PARAM,
@@ -128,7 +131,8 @@ def writeDebug(freqs, SNR_spectrum, h_line_spectrum, blank_spectrum, SDR_PARAM, 
         "Observation results": {
             "RA": ra,
             "Dec": dec,
-            "Doppler": doppler,
+            "Radial velocity": radial_velocity,
+            "Radial correction": radial_correction,
             "Max SNR": SNR
         },
         "Data": {

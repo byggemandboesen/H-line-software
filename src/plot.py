@@ -4,68 +4,75 @@ from datetime import datetime
 from matplotlib import colors
 import matplotlib.pyplot as plt
 
+from analysis import Analysis
+ANALYSIS = Analysis()
+
 class Plotter():
     def __init__(self, **kwargs):
         self.SHOW_MAP = kwargs["plot_map"]
         self.Y_MIN = kwargs["y_min"]
         self.Y_MAX = kwargs["y_max"]
 
-        # Constants
-        self.H_FREQUENCY = 1420405750
-        self.C_SPEED = 299792.458 # km/s
-
     def plot(self, freqs, data, **kwargs):
         # Unpack info
         ra, dec = kwargs["ra"], kwargs["dec"]
-        observer_vel = kwargs["obs_vel"]
-        SNR, doppler = kwargs["SNR"], kwargs["doppler"]
+        radial_correction = kwargs["radial_correction"]
+        freq_correction = ANALYSIS.H_FREQUENCY - ANALYSIS.freqFromRadialVel(radial_correction)
+        SNR, radial_velocity = kwargs["SNR"], kwargs["radial_velocity"]
 
         if self.SHOW_MAP:
             name = f'ra={ra},dec={dec}'
             fig = plt.figure(figsize=(20,12))
-            fig.suptitle('H-line observation', fontsize = 22, y = 0.99)
+            fig.suptitle('Hydrogen line observation', fontsize = 22, y = 0.99)
+            fig.subplots_adjust(hspace=1)
             grid = fig.add_gridspec(2,2)
 
             details_ax = fig.add_subplot(grid[0,0])
             sky_ax = fig.add_subplot(grid[0,1])
-            spectrum_ax = fig.add_subplot(grid[1,:])
+            spectrum_ax = fig.add_subplot(grid[1,0])
+            corrected_spectrum_ax = fig.add_subplot(grid[1,1])
 
-            self.spectrumGrid(spectrum_ax, freqs, data)
+            self.spectrumGrid(spectrum_ax, 'Observed spectrum', freqs, data)
+            self.spectrumGrid(corrected_spectrum_ax, 'Corrected spectrum', np.add(freqs, freq_correction), data)
             self.skyGrid(sky_ax, ra, dec)
-            self.detailsGrid(details_ax, ra, dec, observer_vel,doppler, SNR)
+            self.detailsGrid(details_ax, ra, dec, radial_correction, radial_velocity, SNR)
+
+            # Share y-axis for spectrums
+            corrected_spectrum_ax.set_yticklabels([])
+            corrected_spectrum_ax.set_ylabel('')
+
         else:
             name = datetime.utcnow().strftime('D%m%d%YT%H%M%S')
             fig, ax = plt.subplots(figsize = (12, 7))
-            self.spectrumGrid(ax, freqs, data)
+            self.spectrumGrid(ax, "Observed spectrum", freqs, data)
         
 
         # Saves plot
         path = f'./Spectrums/{name}.png'
-        plt.tight_layout(pad = 1.5)
-        plt.savefig(path, dpi = 200)
+        plt.tight_layout(pad = 1.75)
+        plt.savefig(path, dpi = 100)
         plt.close()
         return name
 
+    
     # Arrange detail grid
     # TODO: Properly center table
-    def detailsGrid(self, ax, ra, dec, observer_velocity, doppler, SNR):
+    def detailsGrid(self, ax, ra, dec, radial_correction, radial_velocity, SNR):
         ax.axis('off')
 
-        observer_vel = np.round(observer_velocity, 1)
-        source_vel = np.round(doppler - observer_vel, 1)
+        source_vel = np.round(radial_velocity - radial_correction, 2)
         title = ['Values']
-        labels = ['RA', 'Dec', 'Peak SNR', 'Doppler', 'Observer vel.', 'Source vel.']
+        labels = ['RA/Dec', 'Peak SNR', 'Observed\nradial velocity', 'Radial velocity\ncorrection', 'Corrected\nsource velocity']
         values = [
-            [fr'{ra}$^\circ$'],
-            [fr'{dec}$^\circ$'],
+            [fr'RA = {ra}$^\circ$, Dec = {dec}$^\circ$'],
             [f'{SNR}dB'],
-            [f'{doppler}' + r'$\frac{km}{s}$'],
-            [f'{observer_vel}' + r'$\frac{km}{s}$'],
+            [f'{radial_velocity}' + r'$\frac{km}{s}$'],
+            [f'{radial_correction}' + r'$\frac{km}{s}$'],
             [f'{source_vel}' + r'$\frac{km}{s}$']]
 
         loc = 'center'
         colwidth = [0.4, 0.1]
-        color = [colors.to_rgba('g', 0.4)]*6
+        color = [colors.to_rgba('g', 0.4)]*5
 
         table = ax.table(cellText = values, colLabels = title, rowLabels = labels, colColours = color, rowColours = color, rowLoc = loc, cellLoc = loc, loc = 9, colWidths = colwidth)
         table.set_fontsize(16)
@@ -77,7 +84,7 @@ class Plotter():
         ax.set(title = 'Milky Way H-line map')
 
         # Huge thanks to the Virgo and Pictor project for sharing their code for the hydrogen line map!
-        img = np.loadtxt('map.txt')
+        img = np.loadtxt('src/map.txt')
         flipimg = np.flip(img, 1)
         ax.imshow(flipimg, extent = [360, 0, -90, 90], interpolation = 'none')
 
@@ -92,19 +99,19 @@ class Plotter():
 
 
     # Arranges spectrum grid
-    def spectrumGrid(self, ax, freqs, data):
+    def spectrumGrid(self, ax, title, freqs, data):
         start_freq = freqs[0]
         stop_freq = freqs[-1]
 
         ax.plot(freqs, data, color = 'g', label = 'Observed data')
 
         # Plots theoretical H-line frequency
-        ax.axvline(x = self.H_FREQUENCY, color = 'r', linestyle = ':', linewidth = 2, label = 'Theoretical frequency')
+        ax.axvline(x = ANALYSIS.H_FREQUENCY, color = 'r', linestyle = ':', linewidth = 2, label = 'Theoretical frequency')
         
         # Sets axis labels and adds legend & grid
         ylabel ='Signal to noise ratio (SNR) / dB'
         xlabel = 'Frequency / Hz'
-        title = 'FFT spectrum'
+        title = title
 
         ax.set(xlabel = xlabel, ylabel = ylabel, title = title)
         ax.set(xlim = [start_freq, stop_freq])
@@ -117,39 +124,11 @@ class Plotter():
         else:
             ax.set(ylim = [self.Y_MIN, self.Y_MAX])
 
-        # Adds top x-axis for doppler
-        doppler = ax.secondary_xaxis('top', functions =(self.dopplerFromFreq, self.freqFromDoppler))
-        doppler.set_xlabel(r'Observed doppler / $\frac{km}{s}$')
+        # Adds top x-axis for radial velocity
+        radial_vel = ax.secondary_xaxis('top', functions = (ANALYSIS.radialVelFromFreq, ANALYSIS.freqFromRadialVel))
+        radial_vel.set_xlabel(r'Radial velocity / $\frac{km}{s}$')
+        
 
-
-    # Returns the doppler and maximum SNR
-    def getDoppler(self, data, freqs):
-        # Center around H-line
-        min_index = (np.abs(np.array(freqs)-1419750000)).argmin()
-        max_index = (np.abs(np.array(freqs)-1421200000)).argmin()
-
-        SNR = np.amax(data[min_index:max_index])
-        #Get index of max SNR
-        index = np.where(data==SNR)[0][0]
-        doppler = self.dopplerFromFreq(freqs[index])
-
-        return np.round(SNR, 2), np.round(doppler, 2)
-
-
-    # Returns doppler from frequency
-    def dopplerFromFreq(self, freq):
-        diff_freq = freq - self.H_FREQUENCY
-        v_doppler = self.C_SPEED*diff_freq/self.H_FREQUENCY
-        return v_doppler
-    
-
-    # Returns frequency from doppler
-    def freqFromDoppler(self, doppler):
-        diff_freq = doppler*self.H_FREQUENCY/self.C_SPEED
-        freq = diff_freq+self.H_FREQUENCY
-        return freq
-    
-    
     # Generates and saves a GIF of 24H observations
     def generateGIF(self, ra, dec):
         print('Generating GIF from observations... This may take a while')
