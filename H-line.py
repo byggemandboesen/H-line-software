@@ -100,7 +100,7 @@ def observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec
     h_line_data = DSP_CLASS.sample(sdr)
     
     # Sample blank
-    sdr.center_freq += 3000000
+    sdr.center_freq += 3200000
     blank_data = DSP_CLASS.sample(sdr)
 
     # Get SNR spectrum, correct for slant and apply median filter
