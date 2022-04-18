@@ -73,7 +73,11 @@ def btn_callback(sender, app_data, user_data):
     elif sender == "edit_theme":
         dpg.show_style_editor()
     elif sender == "open_obs_folder":
-        os.startfile(f"{os.getcwd()}/Spectrums/")
+        path = f"{os.getcwd()}/Spectrums/"
+        if os.name == 'nt':
+            os.startfile(path)
+        else:
+            os.system(path)
 
 
 # Handle checkbox actions
