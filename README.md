@@ -136,12 +136,12 @@ Y-axis interval = [-0.2,1.3]
 ### Plot with Milky Way map
 When setting `show_map: true`, the software plots the observation together with a map of the Milky Way and the observed position.<br>
 This also calculates relative velocity and etc. from the direction of the observation and the observed doppler shift.
-![Plot when using config](Spectrums/ra=28.36,dec=63.35.png)
+![Plot when using config](Spectrums/ra=31.02,dec=62.97.png)
 In this example, the following parameters were used besides the default parameters:
 ```
 Number of FFT = 50000
 Median = 10
-Y-axis interval = [-0.2,1.3]
+Y-axis interval = [-0.2,1.2]
 ```
 
 ### Using RTL-TCP

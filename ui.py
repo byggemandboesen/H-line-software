@@ -55,6 +55,7 @@ def read_from_config():
         for category in categories:
             for key, value in parsed_config[category].items():
                 dpg.set_value(key, value)
+                parameters[category][key] = value
 
 #Callback functions
 # Handle button actions
