@@ -205,3 +205,6 @@ I really appreciate his work for the amateur radio astronomy community!
 * Bug-hunting
 * Mitigate to astropy
 * Allow for DPI scaling of UI
+
+If you reached this far and enjoy my software, it would mean a lot to me, if you showed your support on Ko-fi! If you don't want to tip me, please consider starring the software instead :smiley: <br>
+<a href="https://ko-fi.com/victorboesen34500" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
