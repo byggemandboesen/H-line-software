@@ -12,8 +12,9 @@ class Analysis():
     # Returns the radial velocity and maximum SNR
     def getRadialVelocity(self, data, freqs):
         # Center around H-line
-        min_index = (np.abs(np.array(freqs)-1419750000)).argmin()
-        max_index = (np.abs(np.array(freqs)-1421200000)).argmin()
+        # TODO Change to radial velocity instead of frequency
+        min_index = (np.abs(np.array(freqs)-self.freqFromRadialVel(120))).argmin()
+        max_index = (np.abs(np.array(freqs)-self.freqFromRadialVel(-120))).argmin()
 
         SNR = np.amax(data[min_index:max_index])
         #Get index of max SNR
