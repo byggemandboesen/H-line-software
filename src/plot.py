@@ -34,7 +34,7 @@ class Plotter():
             corrected_spectrum_ax = fig.add_subplot(grid[1,1])
 
             self.spectrumGrid(spectrum_ax, 'Observed spectrum', freqs, data)
-            self.spectrumGrid(corrected_spectrum_ax, 'Corrected spectrum', np.add(freqs, freq_correction), data)
+            self.spectrumGrid(corrected_spectrum_ax, 'Corrected spectrum w.r.t. LSR', np.add(freqs, freq_correction), data)
             self.skyGrid(sky_ax, ra, dec)
             self.detailsGrid(details_ax, ra, dec, barycenter_correction, lsr_correction, radial_velocity, SNR)
 
