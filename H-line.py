@@ -47,12 +47,11 @@ def main(config):
     # Get information from config
     lat, lon = OBSERVER_PARAM['latitude'], OBSERVER_PARAM['longitude']
     alt, az = OBSERVER_PARAM['altitude'], OBSERVER_PARAM['azimuth']
-    OBSERVER = Coordinates(lat, lon)
+    OBSERVER_CLASS = Coordinates(lat, lon)
     
     # Get ra/dec and etc for observer
-    ra, dec = OBSERVER.equatorial(alt, az)
+    ra, dec = OBSERVER_CLASS.equatorial(alt, az)
     # gal_lat, gal_lon = OBSERVER.galactic(alt, az)
-    radial_correction = OBSERVER.radialVelocityCorrection(alt, az)
     
     # Get SDR
     if SDR_PARAM["connect_to_host"]:
@@ -74,7 +73,7 @@ def main(config):
             print(f"Started observing! - {datetime.utcnow()}")
             print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
             with contextlib.redirect_stdout(None):
-                observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra_list[i], dec, radial_correction)
+                observe(DSP_CLASS, OBSERVER_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra_list[i], dec)
             print(f"Done observing! - {datetime.utcnow()}")
 
             # Wait for next execution
@@ -89,13 +88,13 @@ def main(config):
         print(f"Started observing! - {datetime.utcnow()}")
         print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
         with contextlib.redirect_stdout(None):
-            observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec, radial_correction)
+            observe(DSP_CLASS, OBSERVER_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec)
         print(f"Done observing! - {datetime.utcnow()}")
 
 
 # Perform observation
 # TODO Make this easier and not messy
-def observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec, radial_correction):
+def observe(DSP_CLASS, OBS_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec):
     freqs = DSP_CLASS.generateFreqs(sample_rate = SDR_PARAM["sample_rate"])
     h_line_data = DSP_CLASS.sample(sdr)
     
@@ -112,7 +111,19 @@ def observe(DSP_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, sdr, ra, dec
     ANALYSIS_CLASS = Analysis()
     # Get radial velocity and maximum SNR
     max_SNR, radial_velocity = ANALYSIS_CLASS.getRadialVelocity(SNR_spectrum,freqs)
-    plot_info = {"ra": ra, "dec": dec, "radial_correction": radial_correction, "SNR": max_SNR, "radial_velocity": radial_velocity}
+
+    # Get frequency corrections w.r.t. barycenter and Local Standard of Rest
+    barycenter_vel_correction = OBS_CLASS.barycenterVelocityCorrection(ra, dec)
+    lsr_vel_correction = OBS_CLASS.lsrVelocityCorrection(ra, dec, radial_velocity)
+
+    plot_info = {
+        "ra": ra,
+        "dec": dec,
+        "barycenter_correction": barycenter_vel_correction,
+        "lsr_correction": lsr_vel_correction,
+        "SNR": max_SNR,
+        "radial_velocity": radial_velocity
+    }
     obs_name = PLOT_CLASS.plot(freqs=freqs,data=SNR_spectrum,**plot_info)
     
     if debug:

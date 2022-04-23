@@ -16,8 +16,9 @@ class Plotter():
     def plot(self, freqs, data, **kwargs):
         # Unpack info
         ra, dec = kwargs["ra"], kwargs["dec"]
-        radial_correction = kwargs["radial_correction"]
-        freq_correction = ANALYSIS.H_FREQUENCY - ANALYSIS.freqFromRadialVel(radial_correction)
+        barycenter_correction = kwargs["barycenter_correction"]
+        lsr_correction = kwargs["lsr_correction"]
+        freq_correction = ANALYSIS.H_FREQUENCY - ANALYSIS.freqFromRadialVel(lsr_correction)
         SNR, radial_velocity = kwargs["SNR"], kwargs["radial_velocity"]
 
         if self.SHOW_MAP:
@@ -35,7 +36,7 @@ class Plotter():
             self.spectrumGrid(spectrum_ax, 'Observed spectrum', freqs, data)
             self.spectrumGrid(corrected_spectrum_ax, 'Corrected spectrum', np.add(freqs, freq_correction), data)
             self.skyGrid(sky_ax, ra, dec)
-            self.detailsGrid(details_ax, ra, dec, radial_correction, radial_velocity, SNR)
+            self.detailsGrid(details_ax, ra, dec, barycenter_correction, lsr_correction, radial_velocity, SNR)
 
             # Share y-axis for spectrums
             corrected_spectrum_ax.set_yticklabels([])
@@ -56,27 +57,28 @@ class Plotter():
 
     
     # Arrange detail grid
-    # TODO: Properly center table
-    def detailsGrid(self, ax, ra, dec, radial_correction, radial_velocity, SNR):
+    # TODO: Redesign table. Perhaps into two subplots
+    def detailsGrid(self, ax, ra, dec, barycenter_correction, lsr_correction, radial_velocity, SNR):
         ax.axis('off')
 
-        source_vel = np.round(radial_velocity - radial_correction, 2)
+        source_vel = np.round(radial_velocity - lsr_correction, 2)
         title = ['Values']
-        labels = ['RA/Dec', 'Peak SNR', 'Observed\nradial velocity', 'Radial velocity\ncorrection', 'Corrected\nsource velocity']
+        labels = ['RA/Dec', 'Peak SNR', 'Observed\nradial velocity', 'Radial correction\nfor barycenter', 'Radial correction\nfor LSR', 'Corrected\nsource velocity']
         values = [
             [fr'RA = {ra}$^\circ$, Dec = {dec}$^\circ$'],
             [f'{SNR}dB'],
             [f'{radial_velocity}' + r'$\frac{km}{s}$'],
-            [f'{radial_correction}' + r'$\frac{km}{s}$'],
+            [f'{barycenter_correction}' + r'$\frac{km}{s}$'],
+            [f'{lsr_correction}' + r'$\frac{km}{s}$'],
             [f'{source_vel}' + r'$\frac{km}{s}$']]
 
         loc = 'center'
-        colwidth = [0.4, 0.1]
-        color = [colors.to_rgba('g', 0.4)]*5
+        colwidth = [0.45, 0.1]
+        color = [colors.to_rgba('g', 0.5)]*6
 
         table = ax.table(cellText = values, colLabels = title, rowLabels = labels, colColours = color, rowColours = color, rowLoc = loc, cellLoc = loc, loc = 9, colWidths = colwidth)
-        table.set_fontsize(16)
-        table.scale(1.25, 3.25)
+        table.set_fontsize(14)
+        table.scale(1.25, 3)
     
     
     # Arrange sky grid

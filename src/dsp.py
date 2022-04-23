@@ -36,7 +36,6 @@ class DSP():
         # The above spectrum may not be at 0.0 SNR.
         # To fix this, we shift the spectrum to 0.0
         # The distance to shift is equal to the noise floors mean (ie. area around H-line, hence the slicing below)
-        # TODO Set interval from radial velocity (+- 120km/s for example)
         min_index = (np.abs(np.array(freqs)-ANALYSIS.freqFromRadialVel(120))).argmin()
         max_index = (np.abs(np.array(freqs)-ANALYSIS.freqFromRadialVel(-120))).argmin()
         sliced = np.concatenate((diff[:min_index], diff[max_index:]))

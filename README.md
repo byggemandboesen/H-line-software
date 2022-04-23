@@ -68,7 +68,7 @@ Included in the software directory is the `config.json` file which includes all 
     "DSP": {
         "number_of_fft": 1000,
         "resolution": 11,
-        "median": 3
+        "median": 5
     },
     "observer": {
         "latitude": 0.0,
