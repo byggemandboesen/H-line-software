@@ -77,46 +77,46 @@ class DSP():
         return data
     
 
-    # Remove large noise spikes
-    def removeSpikes(self, data):
-        # Look for differences in SNR between bin that are largely greater than two standard deviations
-        mean = np.mean(data)
-        std = np.std(data)
+    # # Remove large noise spikes
+    # def removeSpikes(self, data):
+    #     # Look for differences in SNR between bin that are largely greater than two standard deviations
+    #     mean = np.mean(data)
+    #     std = np.std(data)
         
-        # Get indices of start/end of noise spikes
-        up_indices = []
-        down_indices = []
-        diff = np.array([data[i+1]-data[i] for i in range(len(data)-1)])
-        diff_std = np.std(diff)
+    #     # Get indices of start/end of noise spikes
+    #     up_indices = []
+    #     down_indices = []
+    #     diff = np.array([data[i+1]-data[i] for i in range(len(data)-1)])
+    #     diff_std = np.std(diff)
         
-        # Iterate over each bin to identify large changes in SNR
-        for i in range(len(data)-1):
-            diff[i] = data[i+1]-data[i]
-            if data[i+1]-data[i] > 5*diff_std:
-                up_indices.append(i)
-            elif data[i+1]-data[i] < - 5*diff_std:
-                down_indices.append(i)
+    #     # Iterate over each bin to identify large changes in SNR
+    #     for i in range(len(data)-1):
+    #         diff[i] = data[i+1]-data[i]
+    #         if data[i+1]-data[i] > 5*diff_std:
+    #             up_indices.append(i)
+    #         elif data[i+1]-data[i] < - 5*diff_std:
+    #             down_indices.append(i)
 
-        X_up = [up for up in up_indices]
-        X_down = [down for down in down_indices]
+    #     X_up = [up for up in up_indices]
+    #     X_down = [down for down in down_indices]
 
-        Y_up = [diff[up] for up in up_indices]
-        Y_down = [diff[down] for down in down_indices]
-        plt.plot(X_up,Y_up,marker='o',color='b',label="UP")
-        plt.plot(X_down,Y_down,marker='o',color='g',label="DOWN")
-        plt.plot(diff,label="diff")
-        #plt.plot(data,color='r',label="Data")
-        plt.axhline(2*diff_std,label="STD")
-        plt.legend()
-        #plt.ylim(-0.2,1.3)
-        plt.show()
+    #     Y_up = [diff[up] for up in up_indices]
+    #     Y_down = [diff[down] for down in down_indices]
+    #     plt.plot(X_up,Y_up,marker='o',color='b',label="UP")
+    #     plt.plot(X_down,Y_down,marker='o',color='g',label="DOWN")
+    #     plt.plot(diff,label="diff")
+    #     #plt.plot(data,color='r',label="Data")
+    #     plt.axhline(2*diff_std,label="STD")
+    #     plt.legend()
+    #     #plt.ylim(-0.2,1.3)
+    #     plt.show()
 
-        # Next, replace noise spikes
-        # Spikes are replaced with random values around the median, which then have 1% gaussian noise applied
-        for i in range(0,len(up_indices),2):
-            num_points = down_indices[i]-up_indices[i]+20
-            noise = np.random.normal(0,std,num_points)*0.05
-            # data[up_indices[i]-5:down_indices[i]+5] = np.add(rands, noise)
-            data[up_indices[i]-10:down_indices[i]+10] -= np.add(data[up_indices[i]-10:down_indices[i]+10],noise)
+    #     # Next, replace noise spikes
+    #     # Spikes are replaced with random values around the median, which then have 1% gaussian noise applied
+    #     for i in range(0,len(up_indices),2):
+    #         num_points = down_indices[i]-up_indices[i]+20
+    #         noise = np.random.normal(0,std,num_points)*0.05
+    #         # data[up_indices[i]-5:down_indices[i]+5] = np.add(rands, noise)
+    #         data[up_indices[i]-10:down_indices[i]+10] -= np.add(data[up_indices[i]-10:down_indices[i]+10],noise)
 
-        return data
+    #     return data

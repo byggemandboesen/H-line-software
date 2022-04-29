@@ -87,8 +87,8 @@ def main(config):
     else:
         print(f"Started observing! - {datetime.utcnow()}")
         print(f"Receiving {DSP_PARAM['number_of_fft']} FFT's of {2**DSP_PARAM['resolution']} samples")
-        with contextlib.redirect_stdout(None):
-            observe(DSP_CLASS, OBSERVER_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec)
+        # with contextlib.redirect_stdout(None):
+        observe(DSP_CLASS, OBSERVER_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, OBSERVATION_PARAM["debug"], sdr, ra, dec)
         print(f"Done observing! - {datetime.utcnow()}")
 
 
@@ -104,6 +104,7 @@ def observe(DSP_CLASS, OBS_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, s
 
     # Get SNR spectrum, correct for slant and apply median filter
     SNR_spectrum = DSP_CLASS.combineSpectrums(freqs = freqs, h_line_data = h_line_data, blank_data = blank_data)
+    SNR_spectrum = DSP_CLASS.correctSlant(SNR_spectrum)
     if DSP_PARAM["median"] != 0:
         SNR_spectrum = DSP_CLASS.applyMedian(SNR_spectrum)
 
@@ -114,7 +115,8 @@ def observe(DSP_CLASS, OBS_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, s
 
     # Get frequency corrections w.r.t. barycenter and Local Standard of Rest
     barycenter_vel_correction = OBS_CLASS.barycenterVelocityCorrection(ra, dec)
-    lsr_vel_correction = OBS_CLASS.lsrVelocityCorrection(ra, dec, radial_velocity)
+    vel_wrt_barycenter = radial_velocity - barycenter_vel_correction
+    lsr_vel_correction = OBS_CLASS.lsrVelocityCorrection(ra, dec, vel_wrt_barycenter)
 
     plot_info = {
         "ra": ra,
@@ -134,7 +136,8 @@ def observe(DSP_CLASS, OBS_CLASS, SDR_PARAM, DSP_PARAM, PLOTTING_PARAM, debug, s
 # Write debug file
 def writeDebug(freqs, SNR_spectrum, h_line_spectrum, blank_spectrum, SDR_PARAM, DSP_PARAM, obs_name, **kwargs):
     ra, dec = kwargs["ra"], kwargs["dec"]
-    SNR, radial_velocity, radial_correction = kwargs["SNR"], kwargs["radial_velocity"], kwargs["radial_correction"]
+    SNR, radial_velocity = kwargs["SNR"], kwargs["radial_velocity"]
+    barycenter_correction, lsr_correction = kwargs["barycenter_correction"], kwargs["lsr_correction"]
 
     json_file = {
         "SDR Parameters": SDR_PARAM,
@@ -143,7 +146,8 @@ def writeDebug(freqs, SNR_spectrum, h_line_spectrum, blank_spectrum, SDR_PARAM, 
             "RA": ra,
             "Dec": dec,
             "Radial velocity": radial_velocity,
-            "Radial correction": radial_correction,
+            "Barycenter correction": barycenter_correction,
+            "LSR correction": lsr_correction,
             "Max SNR": SNR
         },
         "Data": {
