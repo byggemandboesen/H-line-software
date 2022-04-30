@@ -19,6 +19,7 @@ The software uses the [pyrtlsdr library](https://github.com/roger-/pyrtlsdr) to 
   - [Errors/FAQ](#errorsfaq)
     - [Problems with matplotlib/numpy on Raspberry Pi](#problems-with-matplotlibnumpy-on-raspberry-pi)
     - [Using this with E4000 tuners](#using-this-with-e4000-tuners)
+    - [The right ascension and declination coordinates change during 24h observation?](#the-right-ascension-and-declination-coordinates-change-during-24h-observation)
   - [Contributions/credit](#contributionscredit)
   - [TODO](#todo)
 
@@ -61,7 +62,7 @@ Included in the software directory is the `config.json` file which includes all 
     "SDR": {
         "sample_rate": 2400000,
         "PPM_offset": 0,
-        "TCP_host": false,
+        "TCP_host": true,
         "connect_to_host": false,
         "host_IP": "127.0.0.1"
     },
@@ -77,14 +78,14 @@ Included in the software directory is the `config.json` file which includes all 
         "altitude": 0.0
     },
     "plotting": {
-        "plot_map": false,
+        "plot_map": true,
         "y_min": 0.0,
         "y_max": 0.0
     },
     "observation": {
         "24h": false,
         "degree_interval": 5.0,
-        "debug": false
+        "datafile": false
     }
 }
 ~~~
@@ -106,7 +107,8 @@ Allows the user to `plot_map` of the sky observed at the Hydrogen line frequency
 The two last parameters determine the y-axis interval on the spectrum. If left to 0, it auto scales the y-axis.
 * Observation
 This section allows the user to perform observations with a fixed `degree_interval` for 24 hours. <br>
-The last parameter allows the user to write a debug file with the data/parameters from the observation.
+The last parameter allows the user to write a JSON file with the data and parameters from the observation.
+This can be useful if you wish to do further analyzis of the data afterwards.
 
 To edit any of these parameters, simply edit and save the debug file, and then run the software, `py H-line.py` or `python3 H-line.py`.
 
@@ -159,14 +161,42 @@ Note, using RTL-TCP may be significantly slower than running everything locally 
 Setting the debug parameter to true will write a debug file from the corresponding observation. This includes the observation parameters, and all the received data before and after processing.
 ~~~json
 {
-    "SDR Parameters": SDR_PARAM,
-    "DSP Parameters": DSP_PARAM,
+    "Observation parameters": {
+        "SDR": {
+            "sample_rate": 2400000,
+            "PPM_offset": 0,
+            "TCP_host": false,
+            "connect_to_host": false,
+            "host_IP": "127.0.0.1"
+        },
+        "DSP": {
+            "number_of_fft": 1000,
+            "resolution": 11,
+            "median": 5
+        },
+        "Observer": {
+            "latitude": 0.0,
+            "longitude": 0.0,
+            "azimuth": 0.0,
+            "altitude": 0.0
+        },
+        "Observation": {
+            "24h": false,
+            "degree_interval": 5.0,
+            "datafile": true
+        }
+    },
     "Observation results": {
-        "RA": ra,
-        "Dec": dec,
-        "Radial velocity": radial_velocity,
-        "Radial correction": radial_correction,
-        "Max SNR": SNR
+        "Time": "yyyy-mm-dd hh:mm:ss",
+        "RA": 0.0,
+        "Dec": 0.0,
+        "Galactic lon": 0.0,
+        "Galactic lat": 0.0,
+        "Observed radial velocity": -0.0,
+        "Barycenter correction": 0.0,
+        "LSR correction": 0.0,
+        "Radial velocity": -0.0,
+        "Max SNR": 0.0
     },
     "Data": {
         "Blank spectrum": "List with blank spectrum",
@@ -195,15 +225,21 @@ sudo apt upgrade
 Since the intention of this software is to motivate amateurs to give radio astronomy a try the versatility of the software is limited to the packages available. The RTL2832U tuner is well supported by the pyrtlsdr package Although it does lack certain features like offset tuning, which results in degraded performance for E4000 tuner SDR's like the Nooelec Smart XTR for example. <br>
 If the pyrtlsdr package improves/introduces new features that allow for further improvements I will be implementing these in my software ASAP.
 
+### The right ascension and declination coordinates change during 24h observation?
+This is not a fault with the code or used packages. Instead, it's simply because the software doesn't use sidereal time. <br>
+The Earth drifts about 1 degree in its orbit around the sun, which is reflected on the data from this software. <br>
+*Call it a bug or a feature, or just science:)*. I may consider switching to sidereal time at some point.
+
 ## Contributions/credit
 I would like to thank [0xCoto](https://github.com/0xCoto) AKA "Apostolos" for letting me use the hydrogen map from the Pictor and Virgo projects. <br>
 I really appreciate his work for the amateur radio astronomy community!
 
 ## TODO
-* Direct bias-t interaction
+* (*maybe*) Direct bias-t interaction
 * Fix inconsistent spectrum size when y-axis autoscales
 * Bug-hunting
-* Mitigate to astropy
+* ~~Mitigate to astropy~~ *done*
+* Consider switching to sidereal time
 * Allow for DPI scaling of UI
 
 If you reached this far and enjoy my software, it would mean a lot to me, if you showed your support on Ko-fi! If you don't want to tip me, please consider starring the software instead :smiley: <br>

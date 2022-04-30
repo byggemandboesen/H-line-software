@@ -28,12 +28,12 @@ The sample() function returns samples.
 
 class RTL():
     # Init with RTL parameters
-    def __init__(self, **kwargs):
-        self.SAMPLE_RATE = kwargs["sample_rate"]
-        self.PPM_OFFSET = kwargs["PPM_offset"]
+    def __init__(self, sample_rate, PPM_offset, host_IP):
+        self.SAMPLE_RATE = sample_rate
+        self.PPM_OFFSET = PPM_offset
         self.CENTER_FREQ = 1420405750
 
-        self.HOST_IP = kwargs["host_IP"]
+        self.HOST_IP = host_IP
     
 
     # Return a physical serial SDR client

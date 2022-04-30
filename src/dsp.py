@@ -1,4 +1,3 @@
-from statistics import mean
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -6,10 +5,10 @@ from analysis import Analysis
 ANALYSIS = Analysis()
 
 class DSP():
-    def __init__(self, **kwargs):
-        self.FFT_SIZE = 2**kwargs["resolution"]
-        self.NUM_FFT = kwargs["number_of_fft"]
-        self.MEDIAN = kwargs["median"]
+    def __init__(self, resolution, num_fft, median):
+        self.FFT_SIZE = 2**resolution
+        self.NUM_FFT = num_fft
+        self.MEDIAN = median
     
     
     # This samples from a given SDR

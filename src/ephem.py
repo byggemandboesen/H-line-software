@@ -13,9 +13,9 @@ from dsp import ANALYSIS
 class Coordinates:
     
     # init function creates pyephem observer and stores it in self
-    def __init__(self, lat, lon):
+    def __init__(self, lat, lon, time):
         self.QTH = EarthLocation(lat = lat*u.degree, lon=lon*u.degree,height=0*u.m)
-        self.TIME = Time.now()
+        self.TIME = Time(time)
     
 
     # Returns galactic coordinates
@@ -31,7 +31,7 @@ class Coordinates:
     def equatorial(self, alt, az):
         horizontal_coord = AltAz(alt = alt*u.degree, az = az*u.degree, pressure = 0*u.bar, obstime = self.TIME,location=self.QTH)
         eq_coord = SkyCoord(horizontal_coord.transform_to(ICRS()))
-        
+
         return round(eq_coord.ra.degree, 2), round(eq_coord.dec.degree, 2)
 
 
@@ -42,7 +42,7 @@ class Coordinates:
 
         # Calculate radial velocity correction w.r.t. the barycenter
         v_observer = eq_coord.radial_velocity_correction(kind='barycentric', obstime=self.TIME, location=self.QTH)
-        v_observer = -v_observer.to(u.km/u.s)
+        v_observer = v_observer.to(u.km/u.s)
 
         return round(v_observer.value, 2)
     
@@ -61,7 +61,7 @@ class Coordinates:
         freq_wrt_lsrk = spectral_coord.with_observer_stationary_relative_to("lsr")
         
         # Calculate the correction in radial velocity
-        correction = radial_vel_wrt_barycenter - ANALYSIS.radialVelFromFreq(freq_wrt_lsrk.value)
+        correction = ANALYSIS.radialVelFromFreq(freq_wrt_lsrk.value) - radial_vel_wrt_barycenter
         
         return round(correction, 2)
         

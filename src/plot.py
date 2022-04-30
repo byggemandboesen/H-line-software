@@ -1,6 +1,5 @@
 import imageio
 import numpy as np
-from datetime import datetime
 from matplotlib import colors
 import matplotlib.pyplot as plt
 
@@ -8,21 +7,21 @@ from analysis import Analysis
 ANALYSIS = Analysis()
 
 class Plotter():
-    def __init__(self, **kwargs):
-        self.SHOW_MAP = kwargs["plot_map"]
-        self.Y_MIN = kwargs["y_min"]
-        self.Y_MAX = kwargs["y_max"]
+    def __init__(self, plot_map, y_min, y_max):
+        self.SHOW_MAP = plot_map
+        self.Y_MIN = y_min
+        self.Y_MAX = y_max
 
     def plot(self, freqs, data, **kwargs):
         # Unpack info
         ra, dec = kwargs["ra"], kwargs["dec"]
+        gal_lon, gal_lat = kwargs["gal_lon"], kwargs["gal_lat"]
         barycenter_correction = kwargs["barycenter_correction"]
         lsr_correction = kwargs["lsr_correction"]
-        freq_correction = ANALYSIS.H_FREQUENCY - ANALYSIS.freqFromRadialVel(lsr_correction)
-        SNR, radial_velocity = kwargs["SNR"], kwargs["radial_velocity"]
+        freq_correction = ANALYSIS.freqFromRadialVel(barycenter_correction + lsr_correction) - ANALYSIS.H_FREQUENCY
+        SNR, radial_velocity = kwargs["SNR"], kwargs["observed_radial_velocity"]
 
         if self.SHOW_MAP:
-            name = f'ra={ra},dec={dec}'
             fig = plt.figure(figsize=(20,12))
             fig.suptitle('Hydrogen line observation', fontsize = 22, y = 0.99)
             fig.subplots_adjust(hspace=1)
@@ -36,36 +35,34 @@ class Plotter():
             self.spectrumGrid(spectrum_ax, 'Observed spectrum', freqs, data)
             self.spectrumGrid(corrected_spectrum_ax, 'Corrected spectrum w.r.t. LSR', np.add(freqs, freq_correction), data)
             self.skyGrid(sky_ax, ra, dec)
-            self.detailsGrid(details_ax, ra, dec, barycenter_correction, lsr_correction, radial_velocity, SNR)
+            self.detailsGrid(details_ax, ra, dec, gal_lon, gal_lat, barycenter_correction, lsr_correction, radial_velocity, SNR)
 
             # Share y-axis for spectrums
             corrected_spectrum_ax.set_yticklabels([])
             corrected_spectrum_ax.set_ylabel('')
 
         else:
-            name = datetime.utcnow().strftime('D%m%d%YT%H%M%S')
             fig, ax = plt.subplots(figsize = (12, 7))
             self.spectrumGrid(ax, "Observed spectrum", freqs, data)
         
 
         # Saves plot
-        path = f'./Spectrums/{name}.png'
+        path = f'./Spectrums/ra={ra},dec={dec}.png'
         plt.tight_layout(pad = 1.75)
         plt.savefig(path, dpi = 100)
         plt.close()
-        return name
 
     
     # Arrange detail grid
     # TODO: Redesign table. Perhaps into two subplots
-    def detailsGrid(self, ax, ra, dec, barycenter_correction, lsr_correction, radial_velocity, SNR):
+    def detailsGrid(self, ax, ra, dec,gal_lon, gal_lat, barycenter_correction, lsr_correction, radial_velocity, SNR):
         ax.axis('off')
 
-        source_vel = np.round(radial_velocity - lsr_correction, 2)
+        source_vel = np.round(radial_velocity + barycenter_correction + lsr_correction, 2)
         title = ['Values']
-        labels = ['RA/Dec', 'Peak SNR', 'Observed\nradial velocity', 'Radial correction\nfor barycenter', 'Radial correction\nfor LSR', 'Corrected\nsource velocity']
+        labels = [r'RA/Dec & $l$/$b$', 'Peak SNR', 'Observed\nradial velocity', 'Radial correction\nfor barycenter', 'Radial correction\nfor LSR', 'Corrected\nsource velocity']
         values = [
-            [fr'RA = {ra}$^\circ$, Dec = {dec}$^\circ$'],
+            [fr'RA={ra}$^\circ$, Dec={dec}$^\circ$  $l$={gal_lon}$^\circ$, $b$={gal_lat}$^\circ$'],
             [f'{SNR}dB'],
             [f'{radial_velocity}' + r'$\frac{km}{s}$'],
             [f'{barycenter_correction}' + r'$\frac{km}{s}$'],
@@ -77,7 +74,7 @@ class Plotter():
         color = [colors.to_rgba('g', 0.5)]*6
 
         table = ax.table(cellText = values, colLabels = title, rowLabels = labels, colColours = color, rowColours = color, rowLoc = loc, cellLoc = loc, loc = 9, colWidths = colwidth)
-        table.set_fontsize(14)
+        table.set_fontsize(16)
         table.scale(1.25, 3)
     
     

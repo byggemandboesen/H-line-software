@@ -1,6 +1,6 @@
-matplotlib==3.4.2
-numpy==1.21.1
+matplotlib==3.5.1
+numpy==1.21.6
 astropy==4.3.1
 pyrtlsdr==0.2.92
-imageio==2.9.0
-dearpygui==1.5.1
+imageio==2.18.0
+dearpygui==1.6.1

@@ -18,13 +18,13 @@
         "altitude": 0.0
     },
     "plotting": {
-        "plot_map": false,
+        "plot_map": true,
         "y_min": 0.0,
         "y_max": 0.0
     },
     "observation": {
         "24h": false,
         "degree_interval": 5.0,
-        "debug": false
+        "datafile": true
     }
 }
