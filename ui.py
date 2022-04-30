@@ -19,7 +19,7 @@ parameters = {
     "DSP": {
         "number_of_fft": 1000,
         "resolution": 11,
-        "median": 3
+        "median": 5
     },
     "observer": {
         "latitude": 0.0,
@@ -28,14 +28,14 @@ parameters = {
         "altitude": 0.0
     },
     "plotting":{
-        "plot_map": False,
+        "plot_map": True,
         "y_min": 0.0,
         "y_max": 0.0
     },
     "observation": {
         "24h": False,
         "degree_interval": 5.0,
-        "debug": False
+        "datafile": False
     }
 }
 
@@ -149,7 +149,7 @@ def run_ui():
             dpg.add_text("(help)",tag="DSP_category")
 
         dpg.add_input_int(label="FFT number",user_data="DSP",default_value=1000,tag="number_of_fft",callback=text_callback)
-        dpg.add_input_int(label="Median",user_data="DSP",default_value=3,tag="median",callback=text_callback)
+        dpg.add_input_int(label="Median",user_data="DSP",default_value=5,tag="median",callback=text_callback)
 
         with dpg.tooltip("DSP_category"):
             help_msg = '''
@@ -186,7 +186,7 @@ def run_ui():
             dpg.add_text("Plotting parameters")
             dpg.add_text("(help)",tag="plotting_category")
 
-        dpg.add_checkbox(label="Plot galactic map",user_data="plotting",tag="plot_map",default_value=False,callback=checkbox_callback)
+        dpg.add_checkbox(label="Plot galactic map",user_data="plotting",tag="plot_map",default_value=True,callback=checkbox_callback)
         dpg.add_input_float(label="Y-min",user_data="plotting",tag="y_min",callback=text_callback,default_value=0.0)
         dpg.add_input_float(label="Y-max",user_data="plotting",tag="y_max",callback=text_callback,default_value=0.0)
         dpg.add_spacer(height=5)
@@ -198,7 +198,7 @@ def run_ui():
             '''
             dpg.add_text(textwrap.dedent(help_msg))
 
-    # Observations parameters (fx. 24h observation and debug)
+    # Observations parameters (fx. 24h observation and datafile)
     with dpg.window(label="Observation",width=300,height=150,pos=(10,300),no_resize=True,no_close=True,no_move=True):
         with dpg.group(horizontal=True):
             dpg.add_text("Observation parameters")
@@ -206,14 +206,14 @@ def run_ui():
         
         dpg.add_checkbox(label="24H observation",tag="24h",user_data="observation",default_value=False,callback=checkbox_callback)
         dpg.add_input_float(label="Deg. interval",tag="degree_interval",user_data="observation",default_value=5.0,callback=text_callback)
-        dpg.add_checkbox(label="Debug",tag="debug",user_data="observation",callback=checkbox_callback,default_value=False)
+        dpg.add_checkbox(label="Datafile",tag="datafile",user_data="observation",callback=checkbox_callback,default_value=False)
         dpg.add_button(label="Run observation",tag="run_observation",callback=btn_callback)
 
         with dpg.tooltip("observation_category"):
             help_msg = '''
             24H observation = Perform observations for 24 hours.
             Deg. interval = Interval between each observation in degrees.
-            Debug = Include debug data from observation.
+            Datafile = Include data from the observation in a JSON file.
             '''
             dpg.add_text(textwrap.dedent(help_msg))
     
