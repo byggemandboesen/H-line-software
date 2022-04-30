@@ -60,9 +60,10 @@ class Plotter():
 
         source_vel = np.round(radial_velocity + barycenter_correction + lsr_correction, 2)
         title = ['Values']
-        labels = [r'RA/Dec & $l$/$b$', 'Peak SNR', 'Observed\nradial velocity', 'Radial correction\nfor barycenter', 'Radial correction\nfor LSR', 'Corrected\nsource velocity']
+        labels = [r'RA/Dec', r'Galactic $l$/$b$', 'Peak SNR', 'Observed\nradial velocity', 'Radial correction\nfor barycenter', 'Radial correction\nfor LSR', 'Corrected\nsource velocity']
         values = [
-            [fr'RA={ra}$^\circ$, Dec={dec}$^\circ$  $l$={gal_lon}$^\circ$, $b$={gal_lat}$^\circ$'],
+            [fr'RA={ra}$^\circ$, Dec={dec}$^\circ$'],
+            [fr'$l$={gal_lon}$^\circ$, $b$={gal_lat}$^\circ$'],
             [f'{SNR}dB'],
             [f'{radial_velocity}' + r'$\frac{km}{s}$'],
             [f'{barycenter_correction}' + r'$\frac{km}{s}$'],
@@ -70,12 +71,13 @@ class Plotter():
             [f'{source_vel}' + r'$\frac{km}{s}$']]
 
         loc = 'center'
-        colwidth = [0.45, 0.1]
-        color = [colors.to_rgba('g', 0.5)]*6
+        colwidth = [0.5, 0.2]
+        color = [colors.to_rgba('g', 0.5)]*7
 
         table = ax.table(cellText = values, colLabels = title, rowLabels = labels, colColours = color, rowColours = color, rowLoc = loc, cellLoc = loc, loc = 9, colWidths = colwidth)
-        table.set_fontsize(16)
-        table.scale(1.25, 3)
+        table.auto_set_font_size(False)
+        table.set_fontsize(14)
+        table.scale(1, 2.25)
     
     
     # Arrange sky grid
