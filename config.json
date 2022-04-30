@@ -25,6 +25,6 @@
     "observation": {
         "24h": false,
         "degree_interval": 5.0,
-        "datafile": true
+        "datafile": false
     }
 }
