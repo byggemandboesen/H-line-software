@@ -13,8 +13,8 @@ from dsp import ANALYSIS
 class Coordinates:
     
     # init function creates pyephem observer and stores it in self
-    def __init__(self, lat, lon, time):
-        self.QTH = EarthLocation(lat = lat*u.degree, lon=lon*u.degree,height=0*u.m)
+    def __init__(self, lat, lon, elevation, time):
+        self.QTH = EarthLocation(lat = lat*u.degree, lon=lon*u.degree,height=elevation*u.m)
         self.TIME = Time(time)
     
 

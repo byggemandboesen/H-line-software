@@ -62,7 +62,7 @@ Included in the software directory is the `config.json` file which includes all 
     "SDR": {
         "sample_rate": 2400000,
         "PPM_offset": 0,
-        "TCP_host": true,
+        "TCP_host": false,
         "connect_to_host": false,
         "host_IP": "127.0.0.1"
     },
@@ -75,7 +75,8 @@ Included in the software directory is the `config.json` file which includes all 
         "latitude": 0.0,
         "longitude": 0.0,
         "azimuth": 0.0,
-        "altitude": 0.0
+        "altitude": 0.0,
+        "elevation": 0.0
     },
     "plotting": {
         "plot_map": true,
@@ -178,7 +179,8 @@ Setting the debug parameter to true will write a debug file from the correspondi
             "latitude": 0.0,
             "longitude": 0.0,
             "azimuth": 0.0,
-            "altitude": 0.0
+            "altitude": 0.0,
+            "elevation": 0.0
         },
         "Observation": {
             "24h": false,
@@ -238,9 +240,9 @@ I really appreciate his work for the amateur radio astronomy community!
 * (*maybe*) Direct bias-t interaction
 * Fix inconsistent spectrum size when y-axis autoscales
 * Bug-hunting
-* ~~Mitigate to astropy~~ *done*
 * Consider switching to sidereal time
 * Allow for DPI scaling of UI
+* (*maybe*) Live view option
 
 If you reached this far and enjoy my software, it would mean a lot to me, if you showed your support on Ko-fi! If you don't want to tip me, please consider starring the software instead :smiley: <br>
 <a href="https://ko-fi.com/victorboesen34500" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="35" width="150"></a>

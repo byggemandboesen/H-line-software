@@ -37,10 +37,11 @@ class Observation:
     def getCoordinates(self, current_time, **coordinates):
         lat, lon = coordinates['latitude'], coordinates['longitude']
         alt, az = coordinates['altitude'], coordinates['azimuth']
+        elevation = coordinates['elevation']
         self.time = current_time
 
         # Instantiate an observer
-        Coordinates = coords(lat, lon, current_time)
+        Coordinates = coords(lat, lon, elevation, current_time)
         self.RA, self.DEC = Coordinates.equatorial(alt, az)
         self.GAL_LON, self.GAL_LAT = Coordinates.galactic(alt, az)
 
