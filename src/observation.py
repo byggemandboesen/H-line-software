@@ -125,7 +125,7 @@ class Observation:
         }
 
         # Save file
-        with open(f"Spectrums/data(ra={self.RA},dec={self.DEC}obs_name).json", "w") as file:
+        with open(f"Spectrums/data(ra={self.RA},dec={self.DEC}).json", "w") as file:
             json.dump(json_file, file, indent = 4)
             
 
