@@ -3,7 +3,7 @@ import json
 # Import necessary classes/modules
 from rtl import RTL
 from plot import Plotter
-from ephem import Coordinates as coords
+from ephemeris import Coordinates as coords
 from dsp import DSP as dsp
 from analysis import Analysis
 
