@@ -3,8 +3,6 @@ import json
 import os
 import dearpygui.dearpygui as dpg
 
-from src.ui.live import LiveView
-
 # Define sample rates
 SAMPLE_RATES = [3200000,2800000,2560000,2400000,2048000,1920000,1800000,1400000,1024000,900001,250000]
 
@@ -71,10 +69,6 @@ def btn_callback(sender, app_data, user_data):
     elif sender == "run_observation":
         update_config()
         os.system('py H-line.py' if os.name =='nt' else 'python3 H-line.py')
-    elif sender == "live_view":
-        print("Opening live view")
-        LV = LiveView()
-        LV.showSpectrum()
     elif sender == "edit_theme":
         dpg.show_style_editor()
     elif sender == "open_obs_folder":
