@@ -15,6 +15,7 @@ def run_ui():
     parameters.observerWindow()
     parameters.observationWindow()
     parameters.actionsWindow()
+    parameters.readDefaults()
 
     dpg.setup_dearpygui()
     dpg.show_viewport()

@@ -7,13 +7,14 @@ import dearpygui.dearpygui as dpg
 SAMPLE_RATES = [3200000,2800000,2560000,2400000,2048000,1920000,1800000,1400000,1024000,900001,250000]
 
 # Define default parameters
-parameters = {
+_parameters = {
     "SDR": {
         "sample_rate": 2400000,
         "PPM_offset": 0,
         "TCP_host": False,
         "connect_to_host": False,
-        "host_IP": "127.0.0.1"
+        "host_IP": "127.0.0.1",
+        "bias_tee": False
     },
     "DSP": {
         "number_of_fft": 1000,
@@ -30,7 +31,8 @@ parameters = {
     "plotting":{
         "plot_map": True,
         "y_min": 0.0,
-        "y_max": 0.0
+        "y_max": 0.0,
+        "live_view": False
     },
     "observation": {
         "24h": False,
@@ -39,6 +41,26 @@ parameters = {
     }
 }
 
+parameters = {}
+
+# Initial with either config.json or _parameters
+def load_defaults():
+    if len(parameters):
+        return
+
+    from pathlib import Path
+    config = Path("config.json")
+    if config.is_file():
+        read_from_config()
+
+    # now add any new default parameters
+    for category in _parameters.keys():
+        for key, value in _parameters[category].items():
+            if not category in parameters:
+                parameters[category] = {}
+
+            if not key in parameters[category]:
+                parameters[category][key] = value
 
 # Write parameters to config
 def update_config():
@@ -50,11 +72,13 @@ def read_from_config():
     with open("config.json", "r") as config_file:
         parsed_config = json.load(config_file)
         categories = list(parsed_config.keys())
-        
-        # Iterrate over each key in category (SDR, DSP, etc.)
+
+        # Iterate over each key in category (SDR, DSP, etc.)
         for category in categories:
             for key, value in parsed_config[category].items():
                 dpg.set_value(key, value)
+                if not category in parameters:
+                    parameters[category] = {}
                 parameters[category][key] = value
 
 # Callback functions
@@ -84,6 +108,9 @@ def btn_callback(sender, app_data, user_data):
 # Handle checkbox actions
 def checkbox_callback(sender, app_data, user_data):
     parameters[user_data][sender] = app_data
+    if sender == 'live_view':
+        update_config()
+        if app_data: os.system('py H-line.py' if os.name =='nt' else 'python3 H-line.py')
 
 # Handle text actions
 def text_callback(sender, app_data, user_data):

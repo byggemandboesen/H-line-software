@@ -84,7 +84,10 @@ class Observation:
 
     # Plot the data
     def plotData(self, **params):
-        PLOT = Plotter(params["plot_map"], params["y_min"], params["y_max"])
+        live_view = False
+        if 'live_view' in params:
+            live_view = params['live_view']
+        PLOT = Plotter(params["plot_map"], params["y_min"], params["y_max"], live_view)
 
         plot_info = {
             "ra": self.RA,
@@ -96,8 +99,7 @@ class Observation:
             "SNR": self.max_SNR,
             "observed_radial_velocity": self.observed_radial_velocity
         }
-        PLOT.plot(self.freqs,self.SNR_spectrum,**plot_info)
-
+        return PLOT.plot(self.freqs,self.SNR_spectrum,**plot_info)
 
     # Writes a datafile with all the collected data from the observation
     def writeDatafile(self, **kwargs):

@@ -36,6 +36,7 @@ def sdrWindow():
             dpg.add_text("RTL-SDR parameters")
             dpg.add_text("(help)",tag="RTL-SDR_category")
 
+        dpg.add_checkbox(label="bias tee",tag="bias_tee",user_data="SDR",default_value=False,callback=callbacks.checkbox_callback)
         dpg.add_combo(callbacks.SAMPLE_RATES,label="Sample rate",user_data="SDR",default_value=2400000,tag="sample_rate",callback=callbacks.dropdown_callback)
         dpg.add_input_int(label="Resolution",user_data="SDR",default_value=11,tag="resolution",callback=callbacks.text_callback)
         dpg.add_input_int(label="PPM offset",user_data="SDR",default_value=0,tag="PPM_offset",callback=callbacks.text_callback)
@@ -43,6 +44,7 @@ def sdrWindow():
 
         with dpg.tooltip("RTL-SDR_category"):
             help_msg = '''
+            bias tee = Configure bias tee (configures voltage on RTL-SDR input port)
             Sample rate = Sample rate of SDR. Values above 2.4MSPS may cause sample drops.
             Resolution = 2^Resolution samples are collected pr. FFT.
             PPM offset = Offset of the RTL-SDR local oscillator in parts per million.
@@ -134,8 +136,8 @@ def actionsWindow():
         with dpg.group(horizontal=True):
             dpg.add_text("Perform actions")
             dpg.add_text("(help)", tag="action_category")
-        
-        # dpg.add_button(label="Live view",tag="live_view",callback=callbacks.btn_callback)
+
+        dpg.add_checkbox(label="Live view",tag="live_view",user_data="plotting",default_value=False,callback=callbacks.checkbox_callback)
         dpg.add_button(label="Edit theme",tag="edit_theme",callback=callbacks.btn_callback)
         dpg.add_button(label="Browse observations",tag="open_obs_folder",callback=callbacks.btn_callback)
         dpg.add_button(label="Update parameters from config",tag="update_parameters",callback=callbacks.btn_callback)
@@ -143,8 +145,15 @@ def actionsWindow():
         with dpg.tooltip("action_category"):
             # Live view = Open a live spectrum for locating the H-line.
             help_msg = '''
+            Live view = Open a live spectrum for locating the H-line.
             Edit theme = Edit the look and appearance of the user interface.
             Browse observations = Browse the folder with previous observations.
             Update parameters from config = Updates the UI with the parameters from the config file.
             '''
             dpg.add_text(textwrap.dedent(help_msg))
+
+def readDefaults():
+    # Once the windows have been created populate with default values
+    callbacks.load_defaults()
+    callbacks.update_config()
+    callbacks.read_from_config()

@@ -7,10 +7,11 @@ from analysis import Analysis
 ANALYSIS = Analysis()
 
 class Plotter():
-    def __init__(self, plot_map, y_min, y_max):
+    def __init__(self, plot_map, y_min, y_max, live_view = False):
         self.SHOW_MAP = plot_map
         self.Y_MIN = y_min
         self.Y_MAX = y_max
+        self.live_view = live_view
 
     def plot(self, freqs, data, **kwargs):
         # Unpack info
@@ -21,7 +22,8 @@ class Plotter():
         freq_correction = ANALYSIS.freqFromRadialVel(barycenter_correction + lsr_correction) - ANALYSIS.H_FREQUENCY
         SNR, radial_velocity = kwargs["SNR"], kwargs["observed_radial_velocity"]
 
-        if self.SHOW_MAP:
+        user_closed_window = False
+        if not self.live_view and self.SHOW_MAP:
             fig = plt.figure(figsize=(20,12))
             fig.suptitle('Hydrogen line observation', fontsize = 22, y = 0.99)
             fig.subplots_adjust(hspace=1)
@@ -41,18 +43,30 @@ class Plotter():
             corrected_spectrum_ax.set_yticklabels([])
             corrected_spectrum_ax.set_ylabel('')
 
-        else:
-            fig, ax = plt.subplots(figsize = (12, 7))
+        elif self.live_view:
+            if plt.fignum_exists(1):
+                fig = plt.figure(1)
+                ax = fig.axes[0]
+                plt.cla()
+            else:
+                fig, ax = plt.subplots(figsize = (12, 7))
+
             self.spectrumGrid(ax, "Observed spectrum", freqs, data)
-        
 
-        # Saves plot
-        path = f'./Spectrums/ra={ra},dec={dec}.png'
-        plt.tight_layout(pad = 1.75)
-        plt.savefig(path, dpi = 100)
-        plt.close()
+        if self.live_view:
+            plt.pause(1.0)
+            if len(plt.get_fignums()) == 0:
+                user_closed_window = True
+        else:
+            # Saves plot
+            path = f'./Spectrums/ra={ra},dec={dec}.png'
+            plt.tight_layout(pad = 1.75)
+            plt.savefig(path, dpi = 100)
 
-    
+            plt.close()
+
+        return user_closed_window
+
     # Arrange detail grid
     # TODO: Redesign table. Perhaps into two subplots
     def detailsGrid(self, ax, ra, dec,gal_lon, gal_lat, barycenter_correction, lsr_correction, radial_velocity, SNR):
@@ -78,8 +92,8 @@ class Plotter():
         table.auto_set_font_size(False)
         table.set_fontsize(14)
         table.scale(1, 2.25)
-    
-    
+
+
     # Arrange sky grid
     def skyGrid(self, ax, ra, dec):
         ax.set(title = 'Milky Way H-line map')
@@ -108,7 +122,7 @@ class Plotter():
 
         # Plots theoretical H-line frequency
         ax.axvline(x = ANALYSIS.H_FREQUENCY, color = 'r', linestyle = ':', linewidth = 2, label = 'Theoretical frequency')
-        
+
         # Sets axis labels and adds legend & grid
         ylabel ='Signal to noise ratio (SNR) / dB'
         xlabel = 'Frequency / Hz'
@@ -128,7 +142,7 @@ class Plotter():
         # Adds top x-axis for radial velocity
         radial_vel = ax.secondary_xaxis('top', functions = (ANALYSIS.radialVelFromFreq, ANALYSIS.freqFromRadialVel))
         radial_vel.set_xlabel(r'Radial velocity / $\frac{km}{s}$')
-        
+
 
     # Generates and saves a GIF of 24H observations
     def generateGIF(self, ra, dec):

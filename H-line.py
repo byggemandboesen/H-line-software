@@ -1,7 +1,7 @@
 import contextlib
 import os, sys, json
 from time import sleep
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Import necessary classes/modules
 sys.path.append("src/")
@@ -21,8 +21,11 @@ def main(config):
 
     sdr = Observation.getSDR(**SDR_PARAM)
 
+    # live_view takes priority
+    live_view = PLOTTING_PARAM['live_view']
+
     # If user wants 24h observations
-    if OBSERVATION_PARAM["24h"]:
+    if not live_view and OBSERVATION_PARAM["24h"]:
         # Checks if 360 is divisable with the degree interval and calculates number of collections
         try:
             deg_interval = OBSERVATION_PARAM["degree_interval"]
@@ -33,11 +36,17 @@ def main(config):
             quit()
     else:
         num_data = 1
+        if live_view:
+            num_data = 100
 
     # Do observation(s)
     # Start time of observation
-    current_time = datetime.utcnow()
+    current_time = datetime.now(timezone.utc)
     for i in range(num_data):
+        if 0 == i or not live_view:
+            sdr.set_bias_tee(SDR_PARAM['bias_tee'])
+            # sleep to allow the amplifier to settle 1ms should be enough time
+            sleep(1)
         COORD_CLASS = Observation.getCoordinates(current_time + timedelta(seconds = 24*60**2/num_data * i), **OBSERVER_PARAM)
         print(current_time + timedelta(seconds = 24*60**2/num_data * i))
         
@@ -49,12 +58,15 @@ def main(config):
         print("Analyzing data...")
         Observation.analyzeData(COORD_CLASS)
         print("Plotting data...")
-        Observation.plotData(**PLOTTING_PARAM)
-
-        print(f"Done observing! - {datetime.utcnow()}")
+        PLOTTING_PARAM['n_plot'] = i
+        if Observation.plotData(**PLOTTING_PARAM):
+            print(f"Live view finished!")
+            break
+        else:
+            print(f"Done observing! - {datetime.now(timezone.utc)}")
 
         # Next, write datafile if necessary
-        if OBSERVATION_PARAM["datafile"]:
+        if not live_view and OBSERVATION_PARAM["datafile"]:
             user_params = {
                 "SDR": SDR_PARAM,
                 "DSP": DSP_PARAM,
@@ -64,13 +76,17 @@ def main(config):
             Observation.writeDatafile(**user_params)
 
         # Wait for next execution
-        if num_data > 1:
+        if not live_view and num_data > 1:
             end_time = current_time + timedelta(seconds = second_interval * (i + 1))
-            time_remaining = end_time - datetime.utcnow()
-            print(f'Waiting for next data collection in {time_remaining.total_seconds()} seconds')
-            sleep(time_remaining.total_seconds())
+            time_remaining = end_time - datetime.now(timezone.utc)
+            delay = time_remaining.total_seconds()
+            delay = 1 if delay < 0 else delay
+            print(f'Waiting for next data collection in {delay} seconds')
+            sdr.set_bias_tee(False)
+            sleep(delay)
             clear_console()
 
+    sdr.set_bias_tee(False)
 
 # Reads user config
 def read_config():
@@ -78,7 +94,6 @@ def read_config():
     config = open(path, 'r')
     parsed_config = json.load(config)
     main(parsed_config)
-
 
 # For clearing console
 def clear_console():
